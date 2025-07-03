@@ -583,6 +583,586 @@ def generate_loan_recommendations(monto: float, tasa: float, cuota: float) -> Li
     
     return recomendaciones
 
+# === MODELOS PYDANTIC PARA TARJETA DE CRÉDITO ===
+
+class SolicitudTarjetaCredito(BaseModel):
+    # Datos Personales
+    nombre_completo: str
+    cedula: str
+    fecha_nacimiento: str
+    telefono: str
+    email: str
+    estado_civil: str
+    dependientes: int
+    
+    # Datos Laborales
+    empresa: str
+    puesto: str
+    tipo_contrato: str
+    salario_bruto: float
+    tiempo_laborando: int  # meses
+    telefono_empresa: str
+    
+    # Datos Financieros
+    otros_ingresos: float
+    gastos_mensuales: float
+    deudas_actuales: float
+    tarjetas_existentes: int
+    
+    # Datos de Referencia
+    referencia_personal_nombre: str
+    referencia_personal_telefono: str
+    referencia_comercial_nombre: str
+    referencia_comercial_telefono: str
+    
+    # Configuración de la tarjeta
+    tipo_tarjeta: str  # clasica, oro, platinum
+    limite_solicitado: float
+    
+    @validator('cedula')
+    def validar_cedula(cls, v):
+        if not v or len(v.replace('-', '')) != 9:
+            raise ValueError('La cédula debe tener 9 dígitos')
+        return v
+    
+    @validator('email')
+    def validar_email(cls, v):
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', v):
+            raise ValueError('Email inválido')
+        return v
+    
+    @validator('salario_bruto')
+    def validar_salario(cls, v):
+        if v < 400000:  # Salario mínimo aproximado
+            raise ValueError('El salario debe ser mayor a ¢400,000')
+        return v
+
+class ResultadoValidacion(BaseModel):
+    entidad: str
+    status: str
+    mensaje: str
+    score: int  # 0-100
+    detalles: Dict[str, Any]
+    tiempo_respuesta: float
+
+class ResultadoSolicitud(BaseModel):
+    solicitud_id: str
+    aprobada: bool
+    limite_aprobado: float
+    tasa_interes: float
+    score_final: int
+    validaciones: List[ResultadoValidacion]
+    recomendaciones: List[str]
+    siguiente_paso: str
+    timestamp: str
+
+# === ENDPOINTS PARA TARJETA DE CRÉDITO ===
+
+@app.get("/api/tarjeta/tipos")
+async def get_card_types():
+    """Tipos de tarjetas disponibles"""
+    return {
+        "tipos": [
+            {
+                "id": "clasica",
+                "nombre": "Orbix Clásica",
+                "limite_max": 500000,
+                "tasa_interes": 24.5,
+                "beneficios": ["Compras en línea", "Retiros cajero", "0% comisión primer año"],
+                "requisitos": "Salario mínimo ¢400,000"
+            },
+            {
+                "id": "oro",
+                "nombre": "Orbix Oro",
+                "limite_max": 1500000,
+                "tasa_interes": 22.8,
+                "beneficios": ["Seguros de viaje", "Compras internacionales", "Puntos Orbix", "Salas VIP"],
+                "requisitos": "Salario mínimo ¢800,000"
+            },
+            {
+                "id": "platinum",
+                "nombre": "Orbix Platinum",
+                "limite_max": 3000000,
+                "tasa_interes": 19.9,
+                "beneficios": ["Concierge 24/7", "Seguros premium", "Cashback 2%", "Acceso exclusivo"],
+                "requisitos": "Salario mínimo ¢1,500,000"
+            }
+        ]
+    }
+
+@app.post("/api/tarjeta/solicitar")
+async def procesar_solicitud_tarjeta(solicitud: SolicitudTarjetaCredito):
+    """Procesar solicitud completa de tarjeta de crédito"""
+    try:
+        # Generar ID único para la solicitud
+        solicitud_id = f"ORB-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+        
+        print(f"🏦 Procesando solicitud {solicitud_id} para {solicitud.nombre_completo}")
+        
+        # 1. Validaciones básicas de datos
+        validaciones_basicas = await validar_datos_basicos(solicitud)
+        
+        # 2. Consultas a entidades externas
+        validaciones_externas = await realizar_consultas_externas(solicitud, solicitud_id)
+        
+        # 3. Combinar todas las validaciones
+        todas_validaciones = validaciones_basicas + validaciones_externas
+        
+        # 4. Calcular score final y decisión
+        resultado = await evaluar_solicitud(solicitud, todas_validaciones, solicitud_id)
+        
+        # 5. Almacenar resultado (simulado)
+        await guardar_solicitud(solicitud_id, solicitud, resultado)
+        
+        return resultado
+        
+    except Exception as e:
+        print(f"❌ Error procesando solicitud: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error procesando solicitud: {str(e)}")
+
+async def validar_datos_basicos(solicitud: SolicitudTarjetaCredito) -> List[ResultadoValidacion]:
+    """Validaciones básicas de formato y coherencia"""
+    validaciones = []
+    
+    # Validación de cédula
+    inicio = time.time()
+    cedula_valida = validate_cedula(solicitud.cedula)
+    validaciones.append(ResultadoValidacion(
+        entidad="Orbix Validator",
+        status="success" if cedula_valida["valido"] else "error",
+        mensaje=cedula_valida["mensaje"],
+        score=100 if cedula_valida["valido"] else 0,
+        detalles={"tipo": "cedula", "formato": cedula_valida.get("detalles", {})},
+        tiempo_respuesta=time.time() - inicio
+    ))
+    
+    # Validación de email
+    inicio = time.time()
+    email_valido = validate_email(solicitud.email)
+    validaciones.append(ResultadoValidacion(
+        entidad="Orbix Validator",
+        status="success" if email_valido["valido"] else "error",
+        mensaje=email_valido["mensaje"],
+        score=100 if email_valido["valido"] else 0,
+        detalles={"tipo": "email", "dominio": email_valido.get("detalles", {})},
+        tiempo_respuesta=time.time() - inicio
+    ))
+    
+    # Validación de teléfono
+    inicio = time.time()
+    telefono_valido = validate_telefono(solicitud.telefono)
+    validaciones.append(ResultadoValidacion(
+        entidad="Orbix Validator",
+        status="success" if telefono_valido["valido"] else "error",
+        mensaje=telefono_valido["mensaje"],
+        score=100 if telefono_valido["valido"] else 0,
+        detalles={"tipo": "telefono", "formato": telefono_valido.get("detalles", {})},
+        tiempo_respuesta=time.time() - inicio
+    ))
+    
+    # Validación de capacidad de pago
+    inicio = time.time()
+    ingresos_netos = solicitud.salario_bruto + solicitud.otros_ingresos
+    gastos_totales = solicitud.gastos_mensuales + solicitud.deudas_actuales
+    capacidad_pago = (ingresos_netos - gastos_totales) / ingresos_netos if ingresos_netos > 0 else 0
+    
+    if capacidad_pago >= 0.3:  # Al menos 30% de capacidad libre
+        score_capacidad = min(100, int(capacidad_pago * 200))
+        status_capacidad = "success"
+        mensaje_capacidad = f"Excelente capacidad de pago: {capacidad_pago:.1%}"
+    elif capacidad_pago >= 0.15:
+        score_capacidad = min(70, int(capacidad_pago * 300))
+        status_capacidad = "warning"
+        mensaje_capacidad = f"Capacidad de pago moderada: {capacidad_pago:.1%}"
+    else:
+        score_capacidad = 30
+        status_capacidad = "error"
+        mensaje_capacidad = f"Capacidad de pago insuficiente: {capacidad_pago:.1%}"
+    
+    validaciones.append(ResultadoValidacion(
+        entidad="Orbix Financial",
+        status=status_capacidad,
+        mensaje=mensaje_capacidad,
+        score=score_capacidad,
+        detalles={
+            "ingresos_netos": ingresos_netos,
+            "gastos_totales": gastos_totales,
+            "capacidad_libre": capacidad_pago,
+            "recomendacion_limite": min(solicitud.limite_solicitado, ingresos_netos * 3)
+        },
+        tiempo_respuesta=time.time() - inicio
+    ))
+    
+    return validaciones
+
+async def realizar_consultas_externas(solicitud: SolicitudTarjetaCredito, solicitud_id: str) -> List[ResultadoValidacion]:
+    """Simular consultas a entidades externas"""
+    validaciones = []
+    
+    # Simular tiempo de consulta asíncrona
+    await asyncio.sleep(2)
+    
+    # 1. Consulta CCSS (Caja Costarricense de Seguro Social)
+    validaciones.append(await simular_consulta_ccss(solicitud))
+    
+    # 2. Consulta Protect Credit
+    validaciones.append(await simular_consulta_protect_credit(solicitud))
+    
+    # 3. Consulta BCR (Banco Central)
+    validaciones.append(await simular_consulta_bcr(solicitud))
+    
+    # 4. Consulta Ministerio de Hacienda
+    validaciones.append(await simular_consulta_hacienda(solicitud))
+    
+    return validaciones
+
+async def simular_consulta_ccss(solicitud: SolicitudTarjetaCredito) -> ResultadoValidacion:
+    """Simular consulta a la CCSS"""
+    inicio = time.time()
+    await asyncio.sleep(random.uniform(1, 3))  # Simular tiempo de respuesta
+    
+    # Simular diferentes escenarios basados en datos
+    escenarios = [
+        (0.7, "success", "Al día con CCSS", 90, {"cotizaciones_dia": True, "patrono_activo": True}),
+        (0.2, "warning", "Atraso menor en cotizaciones", 70, {"cotizaciones_dia": False, "meses_atraso": 2}),
+        (0.1, "error", "Atrasos significativos en CCSS", 30, {"cotizaciones_dia": False, "meses_atraso": 6})
+    ]
+    
+    peso_acumulado = 0
+    valor_random = random.random()
+    
+    for probabilidad, status, mensaje, score, detalles in escenarios:
+        peso_acumulado += probabilidad
+        if valor_random <= peso_acumulado:
+            return ResultadoValidacion(
+                entidad="CCSS",
+                status=status,
+                mensaje=mensaje,
+                score=score,
+                detalles=detalles,
+                tiempo_respuesta=time.time() - inicio
+            )
+    
+    # Fallback
+    return ResultadoValidacion(
+        entidad="CCSS",
+        status="success",
+        mensaje="Al día con CCSS",
+        score=90,
+        detalles={"cotizaciones_dia": True},
+        tiempo_respuesta=time.time() - inicio
+    )
+
+async def simular_consulta_protect_credit(solicitud: SolicitudTarjetaCredito) -> ResultadoValidacion:
+    """Simular consulta a Protect Credit"""
+    inicio = time.time()
+    await asyncio.sleep(random.uniform(0.5, 2))
+    
+    # Score crediticio simulado basado en salario y deudas
+    ratio_deuda = solicitud.deudas_actuales / solicitud.salario_bruto if solicitud.salario_bruto > 0 else 1
+    
+    if ratio_deuda < 0.3:
+        score = random.randint(750, 850)
+        status = "success"
+        categoria = "Excelente"
+    elif ratio_deuda < 0.5:
+        score = random.randint(650, 749)
+        status = "success"
+        categoria = "Bueno"
+    elif ratio_deuda < 0.7:
+        score = random.randint(550, 649)
+        status = "warning"
+        categoria = "Regular"
+    else:
+        score = random.randint(300, 549)
+        status = "error"
+        categoria = "Deficiente"
+    
+    return ResultadoValidacion(
+        entidad="Protect Credit",
+        status=status,
+        mensaje=f"Score crediticio: {score} ({categoria})",
+        score=min(100, score // 8),  # Convertir a escala 0-100
+        detalles={
+            "score_crediticio": score,
+            "categoria": categoria,
+            "historial_pagos": random.choice(["Excelente", "Bueno", "Regular"]),
+            "antiguedad_credito": f"{random.randint(1, 15)} años",
+            "consultas_recientes": random.randint(0, 5)
+        },
+        tiempo_respuesta=time.time() - inicio
+    )
+
+async def simular_consulta_bcr(solicitud: SolicitudTarjetaCredito) -> ResultadoValidacion:
+    """Simular consulta al Banco Central"""
+    inicio = time.time()
+    await asyncio.sleep(random.uniform(1, 2.5))
+    
+    # Simular verificación de antecedentes bancarios
+    tiene_cuentas_bcr = random.choice([True, False])
+    
+    if tiene_cuentas_bcr:
+        comportamiento = random.choice(["excelente", "bueno", "regular"])
+        if comportamiento == "excelente":
+            score = 95
+            status = "success"
+            mensaje = "Cliente de larga data con excelente comportamiento"
+        elif comportamiento == "bueno":
+            score = 80
+            status = "success" 
+            mensaje = "Buen cliente con historial positivo"
+        else:
+            score = 60
+            status = "warning"
+            mensaje = "Cliente con algunos eventos menores"
+    else:
+        score = 70
+        status = "success"
+        mensaje = "Sin historial en BCR - Cliente nuevo"
+    
+    return ResultadoValidacion(
+        entidad="BCR",
+        status=status,
+        mensaje=mensaje,
+        score=score,
+        detalles={
+            "cliente_bcr": tiene_cuentas_bcr,
+            "cuentas_activas": random.randint(0, 3) if tiene_cuentas_bcr else 0,
+            "sobregiros": random.randint(0, 2),
+            "cheques_devueltos": random.randint(0, 1),
+            "antiguedad_relacion": f"{random.randint(1, 10)} años" if tiene_cuentas_bcr else "0 años"
+        },
+        tiempo_respuesta=time.time() - inicio
+    )
+
+async def simular_consulta_hacienda(solicitud: SolicitudTarjetaCredito) -> ResultadoValidacion:
+    """Simular consulta al Ministerio de Hacienda"""
+    inicio = time.time()
+    await asyncio.sleep(random.uniform(1.5, 3))
+    
+    # Simular estado tributario
+    escenarios_tributarios = [
+        (0.6, "success", "Al día con obligaciones tributarias", 90, {"declaraciones_dia": True, "deudas_tributarias": 0}),
+        (0.25, "warning", "Atraso menor en declaraciones", 70, {"declaraciones_dia": False, "deudas_tributarias": random.randint(50000, 200000)}),
+        (0.15, "error", "Deudas tributarias pendientes", 40, {"declaraciones_dia": False, "deudas_tributarias": random.randint(500000, 2000000)})
+    ]
+    
+    peso_acumulado = 0
+    valor_random = random.random()
+    
+    for probabilidad, status, mensaje, score, detalles in escenarios_tributarios:
+        peso_acumulado += probabilidad
+        if valor_random <= peso_acumulado:
+            # Agregar detalles adicionales
+            detalles.update({
+                "regimen_tributario": random.choice(["Asalariado", "Trabajador Independiente", "Simplificado"]),
+                "ultima_declaracion": random.choice(["2024", "2023", "2022"]),
+                "multas_pendientes": random.randint(0, 3)
+            })
+            
+            return ResultadoValidacion(
+                entidad="Ministerio de Hacienda",
+                status=status,
+                mensaje=mensaje,
+                score=score,
+                detalles=detalles,
+                tiempo_respuesta=time.time() - inicio
+            )
+    
+    # Fallback en caso de que no se ejecute ningún escenario
+    return ResultadoValidacion(
+        entidad="Ministerio de Hacienda",
+        status="success",
+        mensaje="Al día con obligaciones tributarias",
+        score=90,
+        detalles={
+            "declaraciones_dia": True,
+            "deudas_tributarias": 0,
+            "regimen_tributario": "Asalariado",
+            "ultima_declaracion": "2024",
+            "multas_pendientes": 0
+        },
+        tiempo_respuesta=time.time() - inicio
+    )
+
+async def evaluar_solicitud(solicitud: SolicitudTarjetaCredito, validaciones: List[ResultadoValidacion], solicitud_id: str) -> ResultadoSolicitud:
+    """Evaluar solicitud y generar resultado final"""
+    
+    # Calcular score promedio ponderado
+    peso_por_entidad = {
+        "Orbix Validator": 0.15,
+        "Orbix Financial": 0.25,
+        "CCSS": 0.20,
+        "Protect Credit": 0.25,
+        "BCR": 0.10,
+        "Ministerio de Hacienda": 0.05
+    }
+    
+    score_total = 0
+    validaciones_exitosas = 0
+    
+    for validacion in validaciones:
+        peso = peso_por_entidad.get(validacion.entidad, 0.1)
+        score_total += validacion.score * peso
+        if validacion.status == "success":
+            validaciones_exitosas += 1
+    
+    score_final = int(score_total)
+    
+    # Determinar aprobación y límite
+    if score_final >= 75 and validaciones_exitosas >= 5:
+        aprobada = True
+        factor_limite = 1.0
+        tasa_interes = 19.9 if solicitud.tipo_tarjeta == "platinum" else 22.8 if solicitud.tipo_tarjeta == "oro" else 24.5
+    elif score_final >= 60 and validaciones_exitosas >= 4:
+        aprobada = True
+        factor_limite = 0.7  # 70% del límite solicitado
+        tasa_interes = 26.5
+    elif score_final >= 45:
+        aprobada = True
+        factor_limite = 0.5  # 50% del límite solicitado
+        tasa_interes = 28.9
+    else:
+        aprobada = False
+        factor_limite = 0
+        tasa_interes = 0
+    
+    # Calcular límite aprobado
+    limite_maximo_salario = solicitud.salario_bruto * 3  # Máximo 3x el salario
+    limite_solicitado_ajustado = min(solicitud.limite_solicitado, limite_maximo_salario)
+    limite_aprobado = limite_solicitado_ajustado * factor_limite if aprobada else 0
+    
+    # Generar recomendaciones
+    recomendaciones = generar_recomendaciones(solicitud, validaciones, score_final, aprobada)
+    
+    # Determinar siguiente paso
+    if aprobada:
+        siguiente_paso = "Documentos requeridos enviados por correo. Visita sucursal para firma de contrato."
+    else:
+        siguiente_paso = "Solicitud no aprobada. Mejora tu perfil crediticio y vuelve a aplicar en 6 meses."
+    
+    return ResultadoSolicitud(
+        solicitud_id=solicitud_id,
+        aprobada=aprobada,
+        limite_aprobado=limite_aprobado,
+        tasa_interes=tasa_interes,
+        score_final=score_final,
+        validaciones=validaciones,
+        recomendaciones=recomendaciones,
+        siguiente_paso=siguiente_paso,
+        timestamp=datetime.now().isoformat()
+    )
+
+def generar_recomendaciones(solicitud: SolicitudTarjetaCredito, validaciones: List[ResultadoValidacion], score: int, aprobada: bool) -> List[str]:
+    """Generar recomendaciones personalizadas"""
+    recomendaciones = []
+    
+    if aprobada:
+        recomendaciones.append("🎉 ¡Felicitaciones! Tu solicitud ha sido aprobada.")
+        recomendaciones.append("💳 Recibirás tu tarjeta en 5-7 días hábiles.")
+        recomendaciones.append("📱 Descarga la app Orbix para gestionar tu cuenta.")
+        
+        if score < 80:
+            recomendaciones.append("💡 Mantén un buen historial de pagos para aumentar tu límite.")
+    else:
+        recomendaciones.append("❌ Tu solicitud no fue aprobada en esta ocasión.")
+        
+        # Recomendaciones específicas basadas en validaciones
+        for validacion in validaciones:
+            if validacion.status == "error":
+                if validacion.entidad == "CCSS":
+                    recomendaciones.append("🏥 Regulariza tu situación con CCSS antes de aplicar nuevamente.")
+                elif validacion.entidad == "Protect Credit":
+                    recomendaciones.append("📊 Mejora tu score crediticio pagando deudas pendientes.")
+                elif validacion.entidad == "Ministerio de Hacienda":
+                    recomendaciones.append("🏛️ Ponte al día con tus obligaciones tributarias.")
+                elif validacion.entidad == "Orbix Financial":
+                    recomendaciones.append("💰 Reduce tus gastos o aumenta tus ingresos para mejorar tu capacidad de pago.")
+        
+        recomendaciones.append("⏰ Puedes volver a aplicar en 6 meses.")
+        recomendaciones.append("🎯 Nuestro equipo te contactará con un plan de mejora personalizado.")
+    
+    return recomendaciones
+
+async def guardar_solicitud(solicitud_id: str, solicitud: SolicitudTarjetaCredito, resultado: ResultadoSolicitud):
+    """Simular guardado de solicitud en base de datos"""
+    # En producción, aquí se guardaría en una base de datos real
+    print(f"💾 Solicitud {solicitud_id} guardada exitosamente")
+    print(f"📊 Score final: {resultado.score_final}")
+    print(f"✅ Aprobada: {resultado.aprobada}")
+    if resultado.aprobada:
+        print(f"💳 Límite aprobado: ¢{resultado.limite_aprobado:,.0f}")
+
+@app.get("/api/tarjeta/solicitud/{solicitud_id}")
+async def consultar_solicitud(solicitud_id: str):
+    """Consultar estado de una solicitud específica"""
+    # En producción, consultar base de datos
+    return {
+        "solicitud_id": solicitud_id,
+        "status": "En proceso",
+        "mensaje": "Su solicitud está siendo evaluada por nuestro equipo especializado.",
+        "tiempo_estimado": "24-48 horas",
+        "documentos_pendientes": [],
+        "contacto": "+506 2000-0000"
+    }
+
+@app.get("/api/tarjeta/calculadora")
+async def calculadora_tarjeta():
+    """Calculadora de pagos para tarjeta de crédito"""
+    return {
+        "tipos_calculo": [
+            "Pago mínimo mensual",
+            "Tiempo para pagar saldo",
+            "Intereses por financiamiento",
+            "Pago para liquidar en X meses"
+        ],
+        "tasas_referencia": {
+            "clasica": 24.5,
+            "oro": 22.8,
+            "platinum": 19.9
+        }
+    }
+
+@app.post("/api/tarjeta/calcular-pagos")
+async def calcular_pagos_tarjeta(data: dict):
+    """Calcular diferentes escenarios de pago para tarjeta"""
+    try:
+        saldo = float(data.get("saldo", 0))
+        tasa_anual = float(data.get("tasa", 24.5))
+        tipo_calculo = data.get("tipo", "pago_minimo")
+        
+        tasa_mensual = tasa_anual / 100 / 12
+        
+        if tipo_calculo == "pago_minimo":
+            # Pago mínimo típicamente 2-3% del saldo
+            pago_minimo = max(saldo * 0.025, 10000)  # Mínimo ¢10,000
+            return {
+                "pago_minimo": round(pago_minimo, 2),
+                "interes_mensual": round(saldo * tasa_mensual, 2),
+                "capital_pagado": round(pago_minimo - (saldo * tasa_mensual), 2),
+                "tiempo_liquidacion": "Más de 30 años" if pago_minimo <= saldo * tasa_mensual else "Calculable"
+            }
+        
+        elif tipo_calculo == "liquidar_meses":
+            meses = int(data.get("meses", 12))
+            if meses <= 0:
+                raise ValueError("Meses debe ser mayor a 0")
+            
+            # Fórmula de anualidad
+            pago_mensual = saldo * (tasa_mensual * (1 + tasa_mensual)**meses) / ((1 + tasa_mensual)**meses - 1)
+            total_pagado = pago_mensual * meses
+            total_intereses = total_pagado - saldo
+            
+            return {
+                "pago_mensual": round(pago_mensual, 2),
+                "total_pagado": round(total_pagado, 2),
+                "total_intereses": round(total_intereses, 2),
+                "ahorro_vs_minimo": "Cálculo disponible"
+            }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error en cálculo: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
