@@ -492,6 +492,133 @@
       }, 5000); // Actualizar cada 5 segundos
     }
 
+    // Función para cargar tráfico de red real
+    async function loadNetworkTraffic() {
+      try {
+        const response = await fetch('/api/sentinel/network-traffic');
+        if (response.ok) {
+          const data = await response.json();
+          
+          const now = new Date();
+          charts.networkTraffic.data.labels.push(now);
+          charts.networkTraffic.data.datasets[0].data.push(data.inbound_mbps);
+          charts.networkTraffic.data.datasets[1].data.push(data.outbound_mbps);
+
+          // Mantener solo los últimos 20 puntos
+          if (charts.networkTraffic.data.labels.length > 20) {
+            charts.networkTraffic.data.labels.shift();
+            charts.networkTraffic.data.datasets[0].data.shift();
+            charts.networkTraffic.data.datasets[1].data.shift();
+          }
+
+          charts.networkTraffic.update('none');
+
+          // Actualizar estadísticas
+          document.getElementById('traffic-in').textContent = data.inbound_mbps.toFixed(1) + ' MB/s';
+          document.getElementById('traffic-out').textContent = data.outbound_mbps.toFixed(1) + ' MB/s';
+          document.getElementById('traffic-total').textContent = data.total_gb.toFixed(2) + ' GB';
+          
+          console.log('✅ Tráfico de red actualizado desde API');
+          return;
+        }
+      } catch (error) {
+        console.log('⚠️ Error obteniendo tráfico de red, usando datos simulados');
+      }
+      
+      // Fallback a datos simulados
+      updateNetworkTraffic();
+    }
+
+    // Función para cargar eventos de seguridad reales
+    async function loadSecurityEvents() {
+      try {
+        const response = await fetch('/api/sentinel/security-events');
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Actualizar contadores
+          document.getElementById('critical-events').textContent = data.critical_count;
+          document.getElementById('warning-events').textContent = data.warning_count;
+          document.getElementById('info-events').textContent = data.info_count;
+
+          // Actualizar gráfico
+          const now = new Date().toLocaleTimeString();
+          charts.securityEvents.data.labels.push(now);
+          charts.securityEvents.data.datasets[0].data.push(data.critical_count);
+          charts.securityEvents.data.datasets[1].data.push(data.warning_count);
+          charts.securityEvents.data.datasets[2].data.push(data.info_count);
+
+          // Mantener solo los últimos 10 puntos
+          if (charts.securityEvents.data.labels.length > 10) {
+            charts.securityEvents.data.labels.shift();
+            charts.securityEvents.data.datasets[0].data.shift();
+            charts.securityEvents.data.datasets[1].data.shift();
+            charts.securityEvents.data.datasets[2].data.shift();
+          }
+
+          charts.securityEvents.update('none');
+          
+          console.log('✅ Eventos de seguridad actualizados desde API');
+          return;
+        }
+      } catch (error) {
+        console.log('⚠️ Error obteniendo eventos de seguridad, usando datos simulados');
+      }
+      
+      // Fallback a datos simulados
+      updateSecurityEvents();
+    }
+
+    // Función para cargar datos de amenazas reales
+    async function loadThreatData() {
+      try {
+        const response = await fetch('/api/sentinel/threats');
+        if (response.ok) {
+          const data = await response.json();
+          
+          const now = new Date();
+          charts.threatDetection.data.labels.push(now);
+          charts.threatDetection.data.datasets[0].data.push(data.detected_count);
+          charts.threatDetection.data.datasets[1].data.push(data.blocked_count);
+
+          // Mantener solo los últimos 15 puntos
+          if (charts.threatDetection.data.labels.length > 15) {
+            charts.threatDetection.data.labels.shift();
+            charts.threatDetection.data.datasets[0].data.shift();
+            charts.threatDetection.data.datasets[1].data.shift();
+          }
+
+          charts.threatDetection.update('none');
+
+          // Actualizar contadores
+          document.getElementById('threats-detected-count').textContent = data.detected_count;
+          document.getElementById('threats-blocked-count').textContent = data.blocked_count;
+          document.getElementById('threats-resolved-count').textContent = data.resolved_count;
+
+          // Actualizar nivel de amenaza
+          const threatLevel = document.getElementById('threat-level');
+          if (data.threat_level === 'high') {
+            threatLevel.textContent = 'ALTO';
+            threatLevel.className = 'threat-high';
+          } else if (data.threat_level === 'medium') {
+            threatLevel.textContent = 'MEDIO';
+            threatLevel.className = 'threat-medium';
+          } else {
+            threatLevel.textContent = 'BAJO';
+            threatLevel.className = 'threat-low';
+          }
+          
+          console.log('✅ Datos de amenazas actualizados desde API');
+          return;
+        }
+      } catch (error) {
+        console.log('⚠️ Error obteniendo datos de amenazas, usando datos simulados');
+      }
+      
+      // Fallback a datos simulados
+      updateThreatDetection();
+    }
+
     function updateNetworkTraffic() {
       const now = new Date();
       const inTraffic = Math.random() * 50 + 10; // Simular 10-60 MB/s
@@ -635,47 +762,58 @@
     }
 
     function updateActivityFeed() {
-      const activities = [
-        { type: 'network', message: 'Nueva conexión desde IP: 192.168.1.' + Math.floor(Math.random() * 255), level: 'info' },
-        { type: 'security', message: 'Intento de login fallido detectado', level: 'warning' },
-        { type: 'threat', message: 'Malware bloqueado en endpoint WS-' + Math.floor(Math.random() * 100), level: 'critical' },
-        { type: 'system', message: 'Backup automático completado', level: 'success' },
-        { type: 'network', message: 'Tráfico anómalo detectado en puerto ' + Math.floor(Math.random() * 65535), level: 'warning' },
-        { type: 'security', message: 'Certificado SSL renovado automáticamente', level: 'success' },
-        { type: 'threat', message: 'Escaneo de puertos bloqueado desde IP externa', level: 'critical' }
-      ];
+      // Primero intentar cargar eventos reales
+      loadSentinelEvents().then(() => {
+        // Si funciona, no hacer nada más
+      }).catch(() => {
+        // Si falla, usar datos simulados
+        const activities = [
+          { type: 'network', message: 'Nueva conexión desde IP: 192.168.1.' + Math.floor(Math.random() * 255), level: 'info' },
+          { type: 'security', message: 'Intento de login fallido detectado', level: 'warning' },
+          { type: 'threat', message: 'Malware bloqueado en endpoint WS-' + Math.floor(Math.random() * 100), level: 'critical' },
+          { type: 'system', message: 'Backup automático completado', level: 'success' },
+          { type: 'network', message: 'Tráfico anómalo detectado en puerto ' + Math.floor(Math.random() * 65535), level: 'warning' },
+          { type: 'security', message: 'Certificado SSL renovado automáticamente', level: 'success' },
+          { type: 'threat', message: 'Escaneo de puertos bloqueado desde IP externa', level: 'critical' }
+        ];
 
-      // Agregar nuevo evento aleatorio
-      if (Math.random() < 0.3) { // 30% de probabilidad
-        const activity = activities[Math.floor(Math.random() * activities.length)];
-        const now = new Date().toLocaleTimeString();
-        
-        const feedContainer = document.getElementById('activity-feed');
-        const eventElement = document.createElement('div');
-        eventElement.className = `feed-event ${activity.level}`;
-        eventElement.innerHTML = `
-          <div class="event-icon">${getEventIcon(activity.type)}</div>
-          <div class="event-content">
-            <div class="event-message">${activity.message}</div>
-            <div class="event-time">${now}</div>
-          </div>
-          <div class="event-level ${activity.level}">${activity.level.toUpperCase()}</div>
-        `;
-        
-        feedContainer.insertBefore(eventElement, feedContainer.firstChild);
-        
-        // Mantener solo los últimos 20 eventos
-        if (feedContainer.children.length > 20) {
-          feedContainer.removeChild(feedContainer.lastChild);
+        // Agregar nuevo evento aleatorio
+        if (Math.random() < 0.3) { // 30% de probabilidad
+          const activity = activities[Math.floor(Math.random() * activities.length)];
+          const now = new Date().toLocaleTimeString();
+          
+          const feedContainer = document.getElementById('activity-feed');
+          const eventElement = document.createElement('div');
+          eventElement.className = `feed-event ${activity.level}`;
+          eventElement.innerHTML = `
+            <div class="event-icon">${getEventIcon(activity.type)}</div>
+            <div class="event-content">
+              <div class="event-message">${activity.message}</div>
+              <div class="event-time">${now}</div>
+            </div>
+            <div class="event-level ${activity.level}">${activity.level.toUpperCase()}</div>
+          `;
+          
+          feedContainer.insertBefore(eventElement, feedContainer.firstChild);
+          
+          // Mantener solo los últimos 20 eventos
+          if (feedContainer.children.length > 20) {
+            feedContainer.removeChild(feedContainer.lastChild);
+          }
         }
-      }
+      });
     }
 
     function updateQuickStats() {
-      document.getElementById('events-today').textContent = Math.floor(Math.random() * 500 + 100);
-      document.getElementById('active-alerts').textContent = Math.floor(Math.random() * 10 + 1);
-      document.getElementById('threats-blocked').textContent = Math.floor(Math.random() * 50 + 10);
-      document.getElementById('active-connections').textContent = Math.floor(Math.random() * 200 + 50);
+      // Intentar cargar estadísticas reales de la API
+      loadSentinelMetrics().then(() => {
+        // Si falla, usar datos simulados como fallback
+      }).catch(() => {
+        document.getElementById('events-today').textContent = Math.floor(Math.random() * 500 + 100);
+        document.getElementById('active-alerts').textContent = Math.floor(Math.random() * 10 + 1);
+        document.getElementById('threats-blocked').textContent = Math.floor(Math.random() * 50 + 10);
+        document.getElementById('active-connections').textContent = Math.floor(Math.random() * 200 + 50);
+      });
       
       // Actualizar timestamp
       document.getElementById('last-update').textContent = '🕒 Actualizado: ' + new Date().toLocaleTimeString();
@@ -714,8 +852,11 @@
     }
 
     function refreshSystemMetrics() {
-      // Forzar actualización de métricas
-      updateSystemPerformance();
+      // Forzar actualización de métricas reales
+      loadSentinelMetrics();
+      loadNetworkTraffic();
+      loadSecurityEvents();
+      loadThreatData();
       updateQuickStats();
       
       // Mostrar feedback visual
