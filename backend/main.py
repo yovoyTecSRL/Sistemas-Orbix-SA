@@ -64,11 +64,17 @@ async def read_root():
                 body { font-family: Arial; padding: 20px; background: #0a0a0a; color: #00ff00; }
                 .btn { padding: 10px 20px; margin: 10px; background: #1a1a1a; color: #00ff00; border: 1px solid #00ff00; border-radius: 5px; text-decoration: none; display: inline-block; }
                 .btn:hover { background: #00ff00; color: #000; }
+                .feature-card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; padding: 20px; margin: 10px; }
             </style>
         </head>
         <body>
             <h1>🧠 Orbix Systems</h1>
             <p>Inteligencia real para negocios reales.</p>
+            <div class="feature-card">
+                <h2>💳 Solicitud de Tarjeta de Crédito</h2>
+                <p>Sistema inteligente de evaluación crediticia con consultas automáticas a entidades oficiales.</p>
+                <a href='tarjeta-credito.html' class='btn'>🚀 Solicitar Tarjeta</a>
+            </div>
             <div>
                 <a href='/validaciones' class='btn'>🧮 Lanzar Validaciones</a>
                 <a href='/sentinel' class='btn'>🛡️ Sentinel</a>
@@ -77,6 +83,15 @@ async def read_root():
         </body>
         </html>
         """)
+
+@app.get("/tarjeta-credito", response_class=HTMLResponse)
+async def tarjeta_credito_page():
+    """Servir la página de solicitud de tarjeta de crédito"""
+    try:
+        with open("../frontend/tarjeta-credito.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Página de tarjeta de crédito no encontrada")
 
 @app.get("/validaciones")
 async def lanzar_validaciones():
@@ -231,20 +246,35 @@ async def get_system_status():
 
 @app.get("/api/sentinel/status")
 async def sentinel_status():
-    """Estado detallado del módulo Sentinel"""
+    """Estado detallado del módulo Sentinel con datos dinámicos"""
+    # Simular variaciones más realistas basadas en la hora del día
+    hour = datetime.now().hour
+    base_multiplier = 1.0
+    
+    # Mayor actividad durante horas laborales
+    if 8 <= hour <= 18:
+        base_multiplier = 1.5
+    elif 19 <= hour <= 23:
+        base_multiplier = 1.2
+    
     return {
         "status": "operational",
-        "threats_blocked": random.randint(100, 200),
-        "events_today": random.randint(30, 80),
-        "active_alerts": random.randint(1, 8),
-        "active_connections": random.randint(50, 150),
+        "threats_blocked": int(random.randint(100, 200) * base_multiplier),
+        "events_today": int(random.randint(30, 80) * base_multiplier),
+        "active_alerts": random.randint(0, 8),
+        "active_connections": int(random.randint(50, 150) * base_multiplier),
         "uptime": "99.9%",
         "last_update": datetime.now().isoformat(),
         "security_level": random.choice(["LOW", "MEDIUM", "HIGH"]),
         "system_health": {
-            "cpu": round(random.uniform(20, 80), 1),
-            "ram": round(random.uniform(30, 70), 1),
+            "cpu": round(random.uniform(15, 85), 1),
+            "ram": round(random.uniform(25, 75), 1),
             "disk": round(random.uniform(40, 85), 1)
+        },
+        "network_status": {
+            "ping": round(random.uniform(1, 15), 1),
+            "packet_loss": round(random.uniform(0, 2), 2),
+            "bandwidth_usage": round(random.uniform(10, 90), 1)
         }
     }
 
@@ -303,38 +333,73 @@ async def sentinel_events():
 
 @app.get("/api/sentinel/metrics")
 async def sentinel_metrics():
-    """Métricas en tiempo real para los gráficos"""
+    """Métricas en tiempo real para los gráficos - Datos más realistas"""
     now = datetime.now()
+    hour = now.hour
+    
+    # Simular patrones de tráfico más realistas
+    if 8 <= hour <= 18:  # Horas laborales
+        traffic_multiplier = 1.8
+        threat_multiplier = 1.5
+    elif 19 <= hour <= 23:  # Noche activa
+        traffic_multiplier = 1.3
+        threat_multiplier = 1.2
+    else:  # Madrugada
+        traffic_multiplier = 0.6
+        threat_multiplier = 0.8
+    
+    # Datos de tráfico de red
+    in_traffic = round(random.uniform(5, 40) * traffic_multiplier, 1)
+    out_traffic = round(random.uniform(3, 25) * traffic_multiplier, 1)
     
     return {
         "network_traffic": {
             "timestamp": now.isoformat(),
-            "in_mbps": round(random.uniform(10, 60), 1),
-            "out_mbps": round(random.uniform(5, 35), 1)
+            "in_mbps": in_traffic,
+            "out_mbps": out_traffic,
+            "total_gb_today": round((in_traffic + out_traffic) * 0.1, 2),
+            "peak_mbps": round(max(in_traffic, out_traffic) * 1.5, 1),
+            "avg_mbps": round((in_traffic + out_traffic) / 2, 1)
         },
         "security_events": {
-            "critical": random.randint(0, 5),
-            "warning": random.randint(0, 10),
-            "info": random.randint(0, 20)
+            "critical": int(random.randint(0, 5) * threat_multiplier),
+            "warning": int(random.randint(0, 10) * threat_multiplier),
+            "info": int(random.randint(5, 25) * threat_multiplier)
         },
         "threat_detection": {
-            "detected": random.randint(0, 8),
-            "blocked": random.randint(0, 5),
-            "resolved": random.randint(0, 6)
+            "detected": int(random.randint(0, 8) * threat_multiplier),
+            "blocked": int(random.randint(0, 6) * threat_multiplier),
+            "resolved": int(random.randint(0, 5) * threat_multiplier),
+            "investigating": random.randint(0, 3)
+        },
+        "system_performance": {
+            "cpu_usage": round(random.uniform(15, 85), 1),
+            "ram_usage": round(random.uniform(25, 75), 1),
+            "disk_usage": round(random.uniform(40, 85), 1),
+            "network_latency": round(random.uniform(1, 15), 1)
         },
         "bandwidth": {
-            "usage_mbps": round(random.uniform(10, 90), 1),
-            "peak_mbps": round(random.uniform(70, 100), 1),
+            "current_usage": round(random.uniform(10, 90), 1),
+            "peak_usage": round(random.uniform(70, 100), 1),
+            "average_usage": round(random.uniform(30, 60), 1),
             "available_mbps": 100
         },
         "geographic": {
             "countries": {
-                "Costa Rica": random.randint(100, 200),
-                "Estados Unidos": random.randint(50, 150),
-                "México": random.randint(30, 100),
-                "Colombia": random.randint(20, 80),
-                "España": random.randint(15, 60)
-            }
+                "Costa Rica": int(random.randint(100, 300) * traffic_multiplier),
+                "Estados Unidos": int(random.randint(50, 200) * traffic_multiplier),
+                "México": int(random.randint(30, 120) * traffic_multiplier),
+                "Colombia": int(random.randint(20, 100) * traffic_multiplier),
+                "España": int(random.randint(15, 80) * traffic_multiplier),
+                "Brasil": int(random.randint(10, 60) * traffic_multiplier)
+            },
+            "suspicious_ips": random.randint(0, 15),
+            "unique_countries": random.randint(8, 25)
+        },
+        "alerts": {
+            "active": random.randint(0, 8),
+            "resolved_today": int(random.randint(5, 20) * threat_multiplier),
+            "pending": random.randint(0, 5)
         }
     }
 
@@ -1162,6 +1227,185 @@ async def calcular_pagos_tarjeta(data: dict):
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error en cálculo: {str(e)}")
+
+# === ENDPOINTS ESPECÍFICOS PARA SENTINEL ===
+
+@app.get("/api/sentinel/network-traffic")
+async def get_network_traffic():
+    """Datos específicos de tráfico de red en tiempo real"""
+    hour = datetime.now().hour
+    multiplier = 1.8 if 8 <= hour <= 18 else 1.3 if 19 <= hour <= 23 else 0.6
+    
+    entrada = round(random.uniform(0, 25) * multiplier, 1)
+    salida = round(random.uniform(0, 20) * multiplier, 1)
+    
+    return {
+        "entrada_mbps": entrada,
+        "salida_mbps": salida,
+        "total_gb_hoy": round((entrada + salida) * 0.12, 2),
+        "pico_mbps": round(max(entrada, salida) * 1.3, 1),
+        "disponible_mbps": 100,
+        "ultimo_update": datetime.now().isoformat()
+    }
+
+@app.get("/api/sentinel/security-events")
+async def get_security_events():
+    """Eventos de seguridad actualizados"""
+    hour = datetime.now().hour
+    threat_level = 1.5 if 8 <= hour <= 18 else 1.2 if 19 <= hour <= 23 else 0.8
+    
+    criticos = random.randint(0, int(5 * threat_level))
+    advertencias = random.randint(0, int(12 * threat_level))
+    info = random.randint(3, int(25 * threat_level))
+    
+    return {
+        "criticos": criticos,
+        "advertencias": advertencias,
+        "info": info,
+        "total": criticos + advertencias + info,
+        "nivel_riesgo": "ALTO" if criticos > 3 else "MEDIO" if advertencias > 8 else "BAJO",
+        "ultimo_update": datetime.now().isoformat()
+    }
+
+@app.get("/api/sentinel/system-performance")
+async def get_system_performance():
+    """Rendimiento del sistema en tiempo real"""
+    # Simular variaciones más naturales
+    base_cpu = 20.9
+    base_ram = 47.2
+    base_disk = 73.5
+    
+    # Pequeñas variaciones aleatorias
+    cpu_variation = random.uniform(-5, 15)
+    ram_variation = random.uniform(-10, 20)
+    disk_variation = random.uniform(-2, 8)
+    
+    cpu = max(5, min(95, base_cpu + cpu_variation))
+    ram = max(10, min(90, base_ram + ram_variation))
+    disk = max(30, min(95, base_disk + disk_variation))
+    
+    return {
+        "cpu_porcentaje": round(cpu, 1),
+        "ram_porcentaje": round(ram, 1),
+        "disco_porcentaje": round(disk, 1),
+        "estado": "NORMAL" if cpu < 80 and ram < 80 else "ALERTA" if cpu < 90 and ram < 90 else "CRÍTICO",
+        "procesos_activos": random.randint(180, 250),
+        "temperatura_cpu": round(random.uniform(35, 65), 1),
+        "ultimo_update": datetime.now().isoformat()
+    }
+
+@app.get("/api/sentinel/threat-detection")
+async def get_threat_detection():
+    """Detección de amenazas actualizada"""
+    hour = datetime.now().hour
+    activity_level = 1.5 if 8 <= hour <= 18 else 1.2 if 19 <= hour <= 23 else 0.7
+    
+    detectadas = random.randint(0, int(8 * activity_level))
+    bloqueadas = random.randint(0, int(6 * activity_level))
+    resueltas = random.randint(0, int(5 * activity_level))
+    
+    nivel_amenaza = "ALTO" if detectadas > 5 else "MEDIO" if detectadas > 2 else "BAJO"
+    
+    return {
+        "detectadas": detectadas,
+        "bloqueadas": bloqueadas,
+        "resueltas": resueltas,
+        "investigando": random.randint(0, 3),
+        "nivel_amenaza": nivel_amenaza,
+        "tipos_amenaza": {
+            "malware": random.randint(0, 3),
+            "phishing": random.randint(0, 2),
+            "ddos": random.randint(0, 1),
+            "intrusion": random.randint(0, 2),
+            "exploit": random.randint(0, 1)
+        },
+        "ultimo_update": datetime.now().isoformat()
+    }
+
+@app.get("/api/sentinel/bandwidth")
+async def get_bandwidth():
+    """Uso de ancho de banda en tiempo real"""
+    hour = datetime.now().hour
+    usage_base = 30 if 2 <= hour <= 6 else 60 if 8 <= hour <= 18 else 45
+    
+    current = round(random.uniform(usage_base - 15, usage_base + 25), 1)
+    peak = round(random.uniform(max(current, 70), 100), 1)
+    average = round(random.uniform(30, 65), 1)
+    
+    return {
+        "uso_actual_mbps": current,
+        "pico_mbps": peak,
+        "promedio_mbps": average,
+        "disponible_mbps": 100,
+        "porcentaje_uso": round(current, 1),
+        "calidad_conexion": "EXCELENTE" if current < 50 else "BUENA" if current < 75 else "SATURADA",
+        "ultimo_update": datetime.now().isoformat()
+    }
+
+@app.get("/api/sentinel/geographic")
+async def get_geographic():
+    """Actividad geográfica en tiempo real"""
+    hour = datetime.now().hour
+    traffic_mult = 1.5 if 8 <= hour <= 18 else 1.2 if 19 <= hour <= 23 else 0.8
+    
+    paises_data = {
+        "Costa Rica": int(random.randint(150, 350) * traffic_mult),
+        "Estados Unidos": int(random.randint(80, 220) * traffic_mult),
+        "México": int(random.randint(40, 130) * traffic_mult),
+        "Colombia": int(random.randint(25, 110) * traffic_mult),
+        "España": int(random.randint(20, 90) * traffic_mult),
+        "Brasil": int(random.randint(15, 70) * traffic_mult),
+        "Argentina": int(random.randint(10, 60) * traffic_mult),
+        "Chile": int(random.randint(8, 45) * traffic_mult)
+    }
+    
+    ips_sospechosas = random.randint(0, 12)
+    paises_unicos = len(paises_data) + random.randint(2, 8)
+    
+    return {
+        "paises": paises_data,
+        "ips_unicas": sum(paises_data.values()),
+        "ips_sospechosas": ips_sospechosas,
+        "paises_unicos": paises_unicos,
+        "conexiones_activas": sum(paises_data.values()),
+        "top_pais": max(paises_data, key=paises_data.get),
+        "riesgo_geografico": "ALTO" if ips_sospechosas > 8 else "MEDIO" if ips_sospechosas > 4 else "BAJO",
+        "ultimo_update": datetime.now().isoformat()
+    }
+
+@app.get("/api/sentinel/dashboard-complete")
+async def get_complete_dashboard():
+    """Dashboard completo con todos los datos agregados"""
+    try:
+        # Obtener datos de todos los endpoints
+        network = await get_network_traffic()
+        security = await get_security_events()
+        performance = await get_system_performance()
+        threats = await get_threat_detection()
+        bandwidth = await get_bandwidth()
+        geographic = await get_geographic()
+        
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "status": "operational",
+            "network_traffic": network,
+            "security_events": security,
+            "system_performance": performance,
+            "threat_detection": threats,
+            "bandwidth": bandwidth,
+            "geographic": geographic,
+            "general_health": {
+                "overall_status": "NORMAL",
+                "uptime": "99.97%",
+                "services_online": random.randint(45, 52),
+                "services_total": 52
+            }
+        }
+    except Exception as e:
+        return {
+            "error": f"Error obteniendo datos del dashboard: {str(e)}",
+            "timestamp": datetime.now().isoformat()
+        }
 
 if __name__ == "__main__":
     import uvicorn

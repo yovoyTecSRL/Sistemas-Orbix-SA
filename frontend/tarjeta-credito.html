@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💳 Solicitud de Tarjeta de Crédito - Orbix Systems</title>
+    <link rel="stylesheet" href="cyber-effects.css">
+    <style>
+        :root {
+            --primary-green: #00ff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-green: #00ff00;
+            --text-white: #ffffff;
+            --border-green: #00ff00;
+            --error-red: #ff3030;
+            --warning-yellow: #ffff00;
+            --success-green: #00ff00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--dark-bg);
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-green);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
+            animation: scan 3s infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header h1 {
+            color: var(--text-green);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--text-green);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #ccc;
+        }
+
+        .chat-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-green);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.bot {
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 3px solid var(--text-green);
+        }
+
+        .message.user {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #ccc;
+            margin-left: 20px;
+        }
+
+        .message.system {
+            background: rgba(255, 255, 0, 0.1);
+            border-left: 3px solid var(--warning-yellow);
+            text-align: center;
+        }
+
+        .input-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-green);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-green);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-green);
+            border-radius: 5px;
+            color: var(--text-white);
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--text-green);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn {
+            background: var(--dark-bg);
+            color: var(--text-green);
+            border: 1px solid var(--border-green);
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: var(--text-green);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn.primary {
+            background: var(--text-green);
+            color: var(--dark-bg);
+        }
+
+        .btn.primary:hover {
+            background: var(--dark-bg);
+            color: var(--text-green);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--dark-bg);
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--text-green), #80ff80);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .card-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card-type {
+            background: var(--card-bg);
+            border: 1px solid var(--border-green);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-type:hover {
+            border-color: var(--text-green);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .card-type.selected {
+            border-color: var(--text-green);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .card-type h3 {
+            color: var(--text-green);
+            margin-bottom: 10px;
+        }
+
+        .result-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-green);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .validation-results {
+            display: grid;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .validation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            border-left: 3px solid;
+        }
+
+        .validation-item.success {
+            border-left-color: var(--success-green);
+        }
+
+        .validation-item.warning {
+            border-left-color: var(--warning-yellow);
+        }
+
+        .validation-item.error {
+            border-left-color: var(--error-red);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-green);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-types {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-badge.success {
+            background: rgba(0, 255, 0, 0.2);
+            color: var(--success-green);
+        }
+
+        .status-badge.warning {
+            background: rgba(255, 255, 0, 0.2);
+            color: var(--warning-yellow);
+        }
+
+        .status-badge.error {
+            background: rgba(255, 48, 48, 0.2);
+            color: var(--error-red);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💳 Solicitud de Tarjeta de Crédito</h1>
+            <p>Sistema Inteligente de Evaluación Crediticia</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot">
+                <strong>🤖 Asistente Orbix:</strong> ¡Hola! Bienvenido al sistema de solicitud de tarjeta de crédito de Orbix. Te guiaré paso a paso para completar tu solicitud. Primero, selecciona el tipo de tarjeta que te interesa:
+            </div>
+        </div>
+
+        <!-- Selección de tipo de tarjeta -->
+        <div class="input-container" id="cardSelection">
+            <h3 style="color: var(--text-green); margin-bottom: 20px;">Selecciona tu tarjeta:</h3>
+            <div class="card-types" id="cardTypes">
+                <!-- Se llenarán dinámicamente -->
+            </div>
+            <button class="btn primary" onclick="selectCardType()" id="selectCardBtn" disabled>Continuar con la selección</button>
+        </div>
+
+        <!-- Formulario de datos -->
+        <div class="input-container hidden" id="dataForm">
+            <h3 style="color: var(--text-green); margin-bottom: 20px;">Datos del Solicitante:</h3>
+            
+            <div class="message system">
+                <strong>📋 Sección:</strong> <span id="currentSection">Datos Personales</span>
+            </div>
+
+            <!-- Datos Personales -->
+            <div class="form-section" id="personalData">
+                <h4 style="color: var(--text-green); margin: 20px 0 10px 0;">👤 Datos Personales</h4>
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="nombreCompleto">Nombre Completo*</label>
+                        <input type="text" id="nombreCompleto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cedula">Cédula*</label>
+                        <input type="text" id="cedula" placeholder="1-2345-6789" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaNacimiento">Fecha de Nacimiento*</label>
+                        <input type="date" id="fechaNacimiento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono*</label>
+                        <input type="tel" id="telefono" placeholder="8888-8888" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email*</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estadoCivil">Estado Civil*</label>
+                        <select id="estadoCivil" required>
+                            <option value="">Seleccionar</option>
+                            <option value="soltero">Soltero(a)</option>
+                            <option value="casado">Casado(a)</option>
+                            <option value="divorciado">Divorciado(a)</option>
+                            <option value="viudo">Viudo(a)</option>
+                            <option value="union_libre">Unión Libre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="dependientes">Número de Dependientes</label>
+                    <input type="number" id="dependientes" min="0" value="0">
+                </div>
+                <button class="btn" onclick="nextSection('laboralData')">Continuar a Datos Laborales 👔</button>
+            </div>
+
+            <!-- Datos Laborales -->
+            <div class="form-section hidden" id="laboralData">
+                <h4 style="color: var(--text-green); margin: 20px 0 10px 0;">👔 Datos Laborales</h4>
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="empresa">Empresa*</label>
+                        <input type="text" id="empresa" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="puesto">Puesto*</label>
+                        <input type="text" id="puesto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoContrato">Tipo de Contrato*</label>
+                        <select id="tipoContrato" required>
+                            <option value="">Seleccionar</option>
+                            <option value="indefinido">Indefinido</option>
+                            <option value="definido">Definido</option>
+                            <option value="independiente">Trabajador Independiente</option>
+                            <option value="pension">Pensionado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="salarioBruto">Salario Bruto Mensual (₡)*</label>
+                        <input type="number" id="salarioBruto" min="400000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tiempoLaborando">Tiempo Laborando (meses)*</label>
+                        <input type="number" id="tiempoLaborando" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefonoEmpresa">Teléfono de la Empresa</label>
+                        <input type="tel" id="telefonoEmpresa">
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="prevSection('personalData')">← Volver</button>
+                    <button class="btn" onclick="nextSection('financialData')">Continuar a Datos Financieros 💰</button>
+                </div>
+            </div>
+
+            <!-- Datos Financieros -->
+            <div class="form-section hidden" id="financialData">
+                <h4 style="color: var(--text-green); margin: 20px 0 10px 0;">💰 Datos Financieros</h4>
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="otrosIngresos">Otros Ingresos Mensuales (₡)</label>
+                        <input type="number" id="otrosIngresos" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="gastosMensuales">Gastos Mensuales Aproximados (₡)*</label>
+                        <input type="number" id="gastosMensuales" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deudasActuales">Deudas Actuales (₡)</label>
+                        <input type="number" id="deudasActuales" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="tarjetasExistentes">Número de Tarjetas de Crédito Actuales</label>
+                        <input type="number" id="tarjetasExistentes" min="0" value="0">
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="prevSection('laboralData')">← Volver</button>
+                    <button class="btn" onclick="nextSection('referencesData')">Continuar a Referencias 📞</button>
+                </div>
+            </div>
+
+            <!-- Referencias -->
+            <div class="form-section hidden" id="referencesData">
+                <h4 style="color: var(--text-green); margin: 20px 0 10px 0;">📞 Referencias</h4>
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="referenciaPersonalNombre">Referencia Personal - Nombre*</label>
+                        <input type="text" id="referenciaPersonalNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="referenciaPersonalTelefono">Referencia Personal - Teléfono*</label>
+                        <input type="tel" id="referenciaPersonalTelefono" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="referenciaComercialNombre">Referencia Comercial - Nombre</label>
+                        <input type="text" id="referenciaComercialNombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="referenciaComercialTelefono">Referencia Comercial - Teléfono</label>
+                        <input type="tel" id="referenciaComercialTelefono">
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="prevSection('financialData')">← Volver</button>
+                    <button class="btn" onclick="nextSection('limitConfig')">Continuar a Configuración 💳</button>
+                </div>
+            </div>
+
+            <!-- Configuración de Límite -->
+            <div class="form-section hidden" id="limitConfig">
+                <h4 style="color: var(--text-green); margin: 20px 0 10px 0;">💳 Configuración de la Tarjeta</h4>
+                <div class="form-group">
+                    <label for="limiteSolicitado">Límite de Crédito Solicitado (₡)*</label>
+                    <input type="number" id="limiteSolicitado" min="100000" step="50000" required>
+                    <small style="color: #ccc;">Recomendación: No más de 3 veces tu salario mensual</small>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="prevSection('referencesData')">← Volver</button>
+                    <button class="btn primary" onclick="submitApplication()" id="submitBtn">🚀 Enviar Solicitud</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        <div class="result-container hidden" id="resultContainer">
+            <div id="validationResults"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedCardType = null;
+        let cardTypes = [];
+        let currentStep = 0;
+        const totalSteps = 6;
+
+        // Cargar tipos de tarjeta al iniciar
+        async function loadCardTypes() {
+            try {
+                const response = await fetch('/api/tarjeta/tipos');
+                const data = await response.json();
+                cardTypes = data.tipos;
+                displayCardTypes();
+            } catch (error) {
+                console.error('Error cargando tipos de tarjeta:', error);
+                addMessage('bot', 'Error cargando tipos de tarjeta. Intenta recargar la página.');
+            }
+        }
+
+        function displayCardTypes() {
+            const container = document.getElementById('cardTypes');
+            container.innerHTML = '';
+            
+            cardTypes.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-type';
+                cardElement.onclick = () => selectCard(card.id);
+                cardElement.innerHTML = `
+                    <h3>${card.nombre}</h3>
+                    <p><strong>Límite máximo:</strong> ₡${card.limite_max.toLocaleString()}</p>
+                    <p><strong>Tasa de interés:</strong> ${card.tasa_interes}% anual</p>
+                    <p><strong>Requisitos:</strong> ${card.requisitos}</p>
+                    <div style="margin-top: 10px;">
+                        <strong>Beneficios:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            ${card.beneficios.map(b => `<li>${b}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                container.appendChild(cardElement);
+            });
+        }
+
+        function selectCard(cardId) {
+            selectedCardType = cardId;
+            
+            // Actualizar visualización
+            document.querySelectorAll('.card-type').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Habilitar botón
+            document.getElementById('selectCardBtn').disabled = false;
+            
+            // Agregar mensaje
+            const selectedCard = cardTypes.find(c => c.id === cardId);
+            addMessage('user', `He seleccionado la tarjeta ${selectedCard.nombre}`);
+            addMessage('bot', `Excelente elección. La ${selectedCard.nombre} es perfecta para ti. Ahora necesito algunos datos para evaluar tu solicitud.`);
+        }
+
+        function selectCardType() {
+            if (!selectedCardType) return;
+            
+            document.getElementById('cardSelection').classList.add('hidden');
+            document.getElementById('dataForm').classList.remove('hidden');
+            
+            updateProgress(1);
+            addMessage('bot', 'Perfecto. Comencemos con tus datos personales. Completa todos los campos marcados con (*):');
+        }
+
+        function nextSection(sectionId) {
+            // Validar sección actual
+            const currentSection = document.querySelector('.form-section:not(.hidden)');
+            if (!validateSection(currentSection)) {
+                return;
+            }
+
+            // Ocultar sección actual
+            currentSection.classList.add('hidden');
+            
+            // Mostrar nueva sección
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Actualizar progreso
+            currentStep++;
+            updateProgress(currentStep);
+            
+            // Actualizar título de sección
+            const sectionNames = {
+                'personalData': 'Datos Personales',
+                'laboralData': 'Datos Laborales', 
+                'financialData': 'Datos Financieros',
+                'referencesData': 'Referencias',
+                'limitConfig': 'Configuración de Tarjeta'
+            };
+            document.getElementById('currentSection').textContent = sectionNames[sectionId];
+            
+            // Mensaje del bot
+            addMessage('bot', `Sección completada ✅ Continuemos con: ${sectionNames[sectionId]}`);
+        }
+
+        function prevSection(sectionId) {
+            // Ocultar sección actual
+            document.querySelector('.form-section:not(.hidden)').classList.add('hidden');
+            
+            // Mostrar sección anterior
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Actualizar progreso
+            currentStep--;
+            updateProgress(currentStep);
+            
+            // Actualizar título
+            const sectionNames = {
+                'personalData': 'Datos Personales',
+                'laboralData': 'Datos Laborales', 
+                'financialData': 'Datos Financieros',
+                'referencesData': 'Referencias',
+                'limitConfig': 'Configuración de Tarjeta'
+            };
+            document.getElementById('currentSection').textContent = sectionNames[sectionId];
+        }
+
+        function validateSection(section) {
+            const requiredFields = section.querySelectorAll('input[required], select[required]');
+            let valid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'var(--error-red)';
+                    valid = false;
+                } else {
+                    field.style.borderColor = 'var(--border-green)';
+                }
+            });
+            
+            if (!valid) {
+                addMessage('bot', '⚠️ Por favor completa todos los campos requeridos (marcados con *)');
+            }
+            
+            return valid;
+        }
+
+        async function submitApplication() {
+            // Validar última sección
+            const lastSection = document.getElementById('limitConfig');
+            if (!validateSection(lastSection)) {
+                return;
+            }
+
+            // Deshabilitar botón
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Procesando solicitud...';
+            
+            // Recopilar datos
+            const formData = {
+                // Datos personales
+                nombre_completo: document.getElementById('nombreCompleto').value,
+                cedula: document.getElementById('cedula').value,
+                fecha_nacimiento: document.getElementById('fechaNacimiento').value,
+                telefono: document.getElementById('telefono').value,
+                email: document.getElementById('email').value,
+                estado_civil: document.getElementById('estadoCivil').value,
+                dependientes: parseInt(document.getElementById('dependientes').value) || 0,
+                
+                // Datos laborales
+                empresa: document.getElementById('empresa').value,
+                puesto: document.getElementById('puesto').value,
+                tipo_contrato: document.getElementById('tipoContrato').value,
+                salario_bruto: parseFloat(document.getElementById('salarioBruto').value),
+                tiempo_laborando: parseInt(document.getElementById('tiempoLaborando').value),
+                telefono_empresa: document.getElementById('telefonoEmpresa').value,
+                
+                // Datos financieros
+                otros_ingresos: parseFloat(document.getElementById('otrosIngresos').value) || 0,
+                gastos_mensuales: parseFloat(document.getElementById('gastosMensuales').value),
+                deudas_actuales: parseFloat(document.getElementById('deudasActuales').value) || 0,
+                tarjetas_existentes: parseInt(document.getElementById('tarjetasExistentes').value) || 0,
+                
+                // Referencias
+                referencia_personal_nombre: document.getElementById('referenciaPersonalNombre').value,
+                referencia_personal_telefono: document.getElementById('referenciaPersonalTelefono').value,
+                referencia_comercial_nombre: document.getElementById('referenciaComercialNombre').value,
+                referencia_comercial_telefono: document.getElementById('referenciaComercialTelefono').value,
+                
+                // Configuración
+                tipo_tarjeta: selectedCardType,
+                limite_solicitado: parseFloat(document.getElementById('limiteSolicitado').value)
+            };
+
+            addMessage('bot', '🔄 Procesando tu solicitud... Esto puede tomar unos momentos mientras consultamos las entidades.');
+            
+            try {
+                const response = await fetch('/api/tarjeta/solicitar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud');
+                }
+                
+                const result = await response.json();
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('bot', '❌ Error procesando la solicitud. Por favor intenta nuevamente.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '🚀 Enviar Solicitud';
+            }
+        }
+
+        function displayResults(result) {
+            document.getElementById('dataForm').classList.add('hidden');
+            document.getElementById('resultContainer').classList.remove('hidden');
+            
+            updateProgress(totalSteps);
+            
+            const container = document.getElementById('validationResults');
+            
+            let html = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h2 style="color: ${result.aprobada ? 'var(--success-green)' : 'var(--error-red)'};">
+                        ${result.aprobada ? '🎉 ¡Solicitud Aprobada!' : '❌ Solicitud No Aprobada'}
+                    </h2>
+                    <p><strong>ID de Solicitud:</strong> ${result.solicitud_id}</p>
+                    <p><strong>Score Final:</strong> ${result.score_final}/100</p>
+                    ${result.aprobada ? `
+                        <p><strong>Límite Aprobado:</strong> ₡${result.limite_aprobado.toLocaleString()}</p>
+                        <p><strong>Tasa de Interés:</strong> ${result.tasa_interes}% anual</p>
+                    ` : ''}
+                </div>
+
+                <h3 style="color: var(--text-green); margin: 20px 0;">📊 Resultados de Validaciones:</h3>
+                <div class="validation-results">
+            `;
+            
+            result.validaciones.forEach(validacion => {
+                html += `
+                    <div class="validation-item ${validacion.status}">
+                        <div>
+                            <strong>${validacion.entidad}</strong><br>
+                            <span>${validacion.mensaje}</span>
+                        </div>
+                        <div>
+                            <span class="status-badge ${validacion.status}">${validacion.score}/100</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                </div>
+                
+                <h3 style="color: var(--text-green); margin: 20px 0;">💡 Recomendaciones:</h3>
+                <ul style="margin-left: 20px;">
+            `;
+            
+            result.recomendaciones.forEach(rec => {
+                html += `<li style="margin-bottom: 10px;">${rec}</li>`;
+            });
+            
+            html += `
+                </ul>
+                
+                <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid var(--border-green); border-radius: 10px; padding: 20px; margin-top: 20px;">
+                    <h4 style="color: var(--text-green);">📋 Siguiente Paso:</h4>
+                    <p>${result.siguiente_paso}</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn primary" onclick="location.reload()">Nueva Solicitud</button>
+                    <button class="btn" onclick="window.history.back()">Volver al Menú</button>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            
+            // Agregar mensaje final
+            if (result.aprobada) {
+                addMessage('bot', `🎉 ¡Felicitaciones ${formData.nombre_completo}! Tu solicitud ha sido aprobada. El equipo de Orbix se pondrá en contacto contigo pronto.`);
+            } else {
+                addMessage('bot', `Lo sentimos, tu solicitud no fue aprobada en esta ocasión. Revisa las recomendaciones y podrás aplicar nuevamente en el futuro.`);
+            }
+        }
+
+        function updateProgress(step) {
+            const progress = (step / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function addMessage(type, text) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const prefix = type === 'bot' ? '🤖 Asistente Orbix:' : '👤 Tú:';
+            messageDiv.innerHTML = `<strong>${prefix}</strong> ${text}`;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Validaciones en tiempo real
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCardTypes();
+            
+            // Validación de cédula en tiempo real
+            document.getElementById('cedula')?.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 1) value = value.slice(0,1) + '-' + value.slice(1);
+                if (value.length >= 6) value = value.slice(0,6) + '-' + value.slice(6,10);
+                e.target.value = value;
+            });
+            
+            // Validación de teléfono
+            document.getElementById('telefono')?.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) value = value.slice(0,4) + '-' + value.slice(4,8);
+                e.target.value = value;
+            });
+        });
+    </script>
+</body>
+</html>

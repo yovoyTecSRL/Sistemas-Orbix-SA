@@ -524,6 +524,13 @@
         <a href="#" class="btn">Usar Calculadora</a>
       </div>
 
+      <div class="nav-card" onclick="abrirTarjetaCredito()">
+        <span class="icon">💳</span>
+        <h3>Tarjeta de Crédito</h3>
+        <p>Solicitud inteligente de tarjeta de crédito. Evaluación automática con consultas a CCSS, BCR y Ministerio de Hacienda.</p>
+        <a href="#" class="btn">Solicitar Tarjeta</a>
+      </div>
+
       <div class="nav-card" onclick="abrirERP()">
         <span class="icon">🚀</span>
         <h3>ERP Odoo</h3>
@@ -645,6 +652,11 @@
     function abrirERP() {
       // Abrir ERP en nueva pestaña
       window.open('https://erp.sistemasorbix.com', '_blank');
+    }
+
+    function abrirTarjetaCredito() {
+      // Abrir solicitud de tarjeta de crédito en nueva pestaña
+      window.open('tarjeta-credito.html', '_blank');
     }
 
     function cerrarModal() {
