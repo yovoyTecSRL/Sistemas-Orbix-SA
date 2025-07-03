@@ -93,6 +93,24 @@ async def tarjeta_credito_page():
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Página de tarjeta de crédito no encontrada")
 
+@app.get("/sentinel", response_class=HTMLResponse)
+async def sentinel_page():
+    """Servir la página de monitoreo Sentinel"""
+    try:
+        with open("../frontend/sentinel.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Página de Sentinel no encontrada")
+
+@app.get("/calculadora", response_class=HTMLResponse)
+async def calculadora_page():
+    """Servir la página de calculadora"""
+    try:
+        with open("../public/calculadora.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Página de calculadora no encontrada")
+
 @app.get("/validaciones")
 async def lanzar_validaciones():
     """
