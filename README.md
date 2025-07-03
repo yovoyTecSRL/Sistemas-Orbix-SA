@@ -1,12 +1,5 @@
 ✅ README.md COMPLETO
-markdown
-Copiar
-Editar
 # 🧠 Orbix Systems - Startpage Oficial
-
-Landing profesional y dinámica para **Sistemas Orbix S.A.**, con enlaces clave hacia servicios Orbix como validaciones, Sentinel, calculadora y el ERP empresarial.
-
----
 
 ## 🚀 Funcionalidades
 
