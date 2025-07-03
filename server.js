@@ -5,7 +5,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000';
+const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:3001';
 
 // Middleware
 app.use(cors());
