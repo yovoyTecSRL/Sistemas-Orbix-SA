@@ -1,0 +1,38 @@
+{
+  "valor_hora_estrategico": 200,
+  "modelo_saas_banco": {
+    "setup_fee": 3500,
+    "mensualidad": 499
+  },
+  "servicios": {
+    "validaciones": {
+      "puerto": 8090,
+      "repositorio": "https://github.com/yovoyTecSRL/validacion-credito",
+      "path": "/opt/orbix_validaciones",
+      "auto_deploy": true
+    },
+    "sentinel": {
+      "puerto": 3001,
+      "integrado": true,
+      "actualizacion_segundos": 2
+    },
+    "calculadora": {
+      "puerto": 3000,
+      "integrado": true,
+      "tipos_prestamo": ["personal", "hipotecario", "vehiculo"]
+    }
+  },
+  "seguridad": {
+    "nivel_alerta": "MEDIO",
+    "max_intentos_login": 3,
+    "timeout_sesion": 3600,
+    "ips_bloqueadas": [],
+    "puertos_monitoreados": [22, 80, 443, 3000, 8000, 8090]
+  },
+  "monitoreo": {
+    "metricas_tiempo_real": true,
+    "logs_detallados": true,
+    "backup_automatico": true,
+    "notificaciones_email": true
+  }
+}
