@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  orbix-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      - ENVIRONMENT=production
+    depends_on:
+      - orbix-db
+    networks:
+      - orbix-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+  orbix-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app/frontend
+      - ./public:/app/public
+    depends_on:
+      - orbix-backend
+    networks:
+      - orbix-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  orbix-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: orbix
+      POSTGRES_USER: orbix_user
+      POSTGRES_PASSWORD: orbix_secure_2025
+    volumes:
+      - orbix_db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - orbix-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbix_user -d orbix"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  orbix-redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - orbix_redis_data:/data
+    networks:
+      - orbix-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  orbix-nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - orbix-backend
+      - orbix-frontend
+    networks:
+      - orbix-network
+    restart: unless-stopped
+
+volumes:
+  orbix_db_data:
+    driver: local
+  orbix_redis_data:
+    driver: local
+
+networks:
+  orbix-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
