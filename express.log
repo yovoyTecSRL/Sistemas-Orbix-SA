@@ -122,3 +122,7 @@ nohup: ignoring input
 🔄 Proxy: GET /api/validaciones/tipos -> http://127.0.0.1:8000/api/validaciones/tipos
 🔄 Proxy: GET /api/health -> http://127.0.0.1:8000/api/health
 🔄 Proxy: GET /api/sentinel/events -> http://127.0.0.1:8000/api/sentinel/events
+🔄 Proxy: GET /api/sentinel/events -> http://127.0.0.1:8000/api/sentinel/events
+🔄 Proxy: GET /api/health -> http://127.0.0.1:8000/api/health
+🔄 Proxy: GET /api/validaciones/tipos -> http://127.0.0.1:8000/api/validaciones/tipos
+🔄 Proxy: GET /api/sentinel/metrics -> http://127.0.0.1:8000/api/sentinel/metrics
