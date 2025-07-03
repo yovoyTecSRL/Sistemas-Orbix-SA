@@ -1368,7 +1368,7 @@ async def get_geographic():
         "ips_sospechosas": ips_sospechosas,
         "paises_unicos": paises_unicos,
         "conexiones_activas": sum(paises_data.values()),
-        "top_pais": max(paises_data, key=paises_data.get),
+        "top_pais": max(paises_data, key=lambda k: paises_data[k]),
         "riesgo_geografico": "ALTO" if ips_sospechosas > 8 else "MEDIO" if ips_sospechosas > 4 else "BAJO",
         "ultimo_update": datetime.now().isoformat()
     }
