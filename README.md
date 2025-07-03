@@ -1,12 +1,46 @@
-✅ README.md COMPLETO
-# 🧠 Orbix Systems - Startpage Oficial
+# 🧠 Orbix Systems
 
-## 🚀 Funcionalidades
+**Inteligencia real para negocios reales.**
 
-- Interfaz responsive con diseño futurista estilo dark
-- Enlaces rápidos a módulos críticos de Orbix
-- Soporte dual para despliegue con Node.js o Flask
-- Compatible con Docker y GitHub Actions (Copilot Ready)
+Orbix Systems es una plataforma integral que combina inteligencia artificial, automatización y seguridad para empresas modernas.
+
+## 🚀 Servicios Principales
+
+### ✅ Sistema de Validaciones
+- **CCSS**: Validación de estado laboral y cuotas obrero-patronales
+- **SUGEF**: Consultas de centrales de riesgo y reportes crediticios
+- **Registro Nacional**: Validación de documentos y registros oficiales
+- **IA Integration**: Análisis automático con Odoo ERP
+
+### 🧮 Calculadora Financiera Inteligente
+- Calculadora de préstamos con amortización
+- Análisis de capacidad de pago
+- Simulador de inversiones
+- Scoring crediticio automático
+
+### 🛡️ Sentinel - Monitoreo y Seguridad
+- Monitoreo de red en tiempo real
+- Detección de amenazas con IA
+- Análisis de logs centralizados
+- Dashboard de seguridad
+
+### 🚀 ERP Integration
+- Conexión con Odoo ERP
+- Sincronización de datos
+- Workflows automatizados
+
+## 🔌 Puertos y Servicios
+
+| Servicio | Puerto | Estado | URL |
+|----------|--------|--------|-----|
+| **Web Principal** | 3000 | ✅ Activo | http://localhost:3000 |
+| **Sentinel Main** | 3001 | 🔄 Dev | http://localhost:3001 |
+| **Sentinel Dashboard** | 3002 | 🔄 Dev | http://localhost:3002 |
+| **Sentinel API** | 3003 | 🔄 Dev | http://localhost:3003 |
+| **Validaciones** | 3005 | 🔄 Planned | http://localhost:3005 |
+| **Calculadora** | 3009 | 🔄 Planned | http://localhost:3009 |
+
+Ver [PUERTOS.md](./PUERTOS.md) para documentación completa de puertos.
 
 ---
 
@@ -153,3 +187,54 @@ jobs:
 
       - name: 🚀 Run Docker
         run: docker run -d -p 80:80 orbix-web
+
+# 🛡️ Sistemas Orbix S.A. - Plataforma Web Integrada
+
+## 📋 Descripción
+
+Plataforma web completa de Orbix Systems que integra múltiples servicios y herramientas empresariales incluyendo validaciones, calculadoras avanzadas y un centro de monitoreo de seguridad (Sentinel) con dashboards en tiempo real.
+
+## 🏗️ Arquitectura del Sistema
+
+### Frontend Web (Puerto 3000)
+- **Servidor**: Node.js + Express
+- **Páginas**: 
+  - Inicio (`/`)
+  - Validaciones (`/validaciones`) - Con integración a FastAPI
+  - Calculadora (`/calculadora`)
+  - **Sentinel (`/sentinel`) - Dashboard de Monitoreo en Tiempo Real**
+- **Proxy**: `/api/orbix/*` → FastAPI (puerto 8000)
+
+### Sentinel - Centro de Monitoreo Avanzado
+La página de Sentinel ahora incluye un dashboard completo de monitoreo en tiempo real con:
+
+#### 📊 Gráficos en Tiempo Real (Chart.js)
+- **Tráfico de Red**: Monitoreo de entrada y salida de datos
+- **Eventos de Seguridad**: Críticos, advertencias e información
+- **Rendimiento del Sistema**: CPU, RAM, Disco (gráfico de dona)
+- **Detección de Amenazas**: Amenazas detectadas vs bloqueadas
+- **Uso de Ancho de Banda**: Monitoreo continuo
+- **Actividad Geográfica**: Conexiones por país
+
+#### 🚨 Características Avanzadas
+- **Feed de Actividad en Tiempo Real**: Eventos de seguridad actualizados cada 2 segundos
+- **Controles Interactivos**: Pausar/reanudar, filtros, limpieza de datos
+- **Métricas Dinámicas**: Estadísticas que se actualizan automáticamente
+- **Indicadores de Amenaza**: Niveles bajo, medio, alto con animaciones
+- **Verificación de APIs**: Estado en tiempo real de servicios conectados
+- **Design Responsivo**: Optimizado para dispositivos móviles
+
+#### 🎨 Diseño Profesional
+- **Tema Moderno**: Gradientes azules con efectos de glassmorphism
+- **Cards Interactivas**: Contenedores con sombras y efectos de profundidad
+- **Animaciones**: Transiciones suaves y efectos visuales
+- **Dashboard Tipo Grafana**: Layout profesional estilo centro de operaciones
+
+## 🔌 Puertos Documentados
+
+| Puerto | Servicio | Estado | Descripción |
+|--------|----------|---------|-------------|
+| 3000 | Node.js/Express | ✅ Activo | Servidor web principal |
+| 8000 | FastAPI | ⏳ Pendiente | API backend de validaciones |
+| 8070 | Odoo ERP | ⏳ Pendiente | Sistema ERP empresarial |
+| 5432 | PostgreSQL | ⏳ Pendiente | Base de datos principal |
