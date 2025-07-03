@@ -4,9 +4,375 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🛡️ Sentinel - Orbix Systems</title>
-  <link rel="stylesheet" href="../styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #00d4ff;
+      --secondary-color: #0066cc;
+      --accent-color: #ff6b35;
+      --bg-dark: #0a0a0a;
+      --bg-darker: #050505;
+      --surface: rgba(255, 255, 255, 0.05);
+      --surface-hover: rgba(255, 255, 255, 0.1);
+      --text-primary: #ffffff;
+      --text-secondary: #b8bcc8;
+      --success: #00ff88;
+      --warning: #ffb700;
+      --danger: #ff3d47;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 50%, #001122 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(0, 102, 204, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    header {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    header h1 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 2rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: var(--primary-color);
+      background: var(--surface);
+      border: 1px solid var(--primary-color);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .dashboard-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 3rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    .system-status h1 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .system-status p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .status-badges {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      padding: 0.5rem 1rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-badge.online {
+      color: var(--success);
+      border-color: var(--success);
+    }
+
+    .status-badge.uptime {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .status-badge.timestamp {
+      color: var(--text-secondary);
+    }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-box {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 212, 255, 0.2);
+    }
+
+    .stat-number {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+    }
+
+    .chart-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-header h3 {
+      font-family: 'Orbitron', monospace;
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chart-controls select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 0.5rem;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .chart-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--glass-border);
+      font-size: 0.9rem;
+    }
+
+    .chart-stats span {
+      color: var(--text-secondary);
+    }
+
+    .chart-stats strong {
+      color: var(--text-primary);
+      font-family: 'Orbitron', monospace;
+    }
+
+    .chart-stats .critical strong {
+      color: var(--danger);
+    }
+
+    .chart-stats .warning strong {
+      color: var(--warning);
+    }
+
+    .chart-stats .info strong {
+      color: var(--primary-color);
+    }
+
+    footer {
+      background: var(--bg-darker);
+      padding: 2rem;
+      text-align: center;
+      margin-top: 4rem;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-header {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .system-status h1 {
+        font-size: 2rem;
+      }
+      
+      header {
+        padding: 1rem;
+      }
+      
+      nav {
+        gap: 1rem;
+      }
+      
+      .status-badges {
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
 <body class="sentinel-dashboard">
   <header>
@@ -945,10 +1311,11 @@
           // Mostrar solo los últimos 5 eventos para no saturar
           const recentEvents = data.events.slice(0, 5);
           
-          recentEvents.forEach(event => {        addEventToFeed(event);
+        recentEvents.forEach(event => {
+          addEventToFeed(event);
+        });
       }
-    }
-      } catch (error) {
+    } catch (error) {
         console.error('Error cargando eventos de Sentinel:', error);
         // Fallback a datos simulados si falla la API
         addSimulatedEvent();
@@ -1024,7 +1391,7 @@
             feedContainer.removeChild(feedContainer.lastChild);
           }
         }
-      });
+      }
     }
 
     function updateQuickStats() {

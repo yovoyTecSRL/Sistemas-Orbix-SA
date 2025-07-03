@@ -1,0 +1,489 @@
+/* Orbix Cyber Effects - Elementos futuristas avanzados */
+
+/* Efectos de partículas flotantes */
+.floating-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: float-particle 20s linear infinite;
+}
+
+.particle:nth-child(2n) {
+  background: var(--accent-color);
+  animation-duration: 25s;
+}
+
+.particle:nth-child(3n) {
+  background: var(--secondary-color);
+  animation-duration: 30s;
+  width: 1px;
+  height: 1px;
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translateY(100vh) translateX(0px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100px) translateX(100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Efecto de líneas de código en movimiento */
+.code-rain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0.1;
+}
+
+.code-line {
+  position: absolute;
+  color: var(--primary-color);
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  white-space: nowrap;
+  animation: code-fall 15s linear infinite;
+}
+
+@keyframes code-fall {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* Efecto de escaneo holográfico */
+.hologram-scan {
+  position: relative;
+  overflow: hidden;
+}
+
+.hologram-scan::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+  animation: scan-line 3s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes scan-line {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(200px);
+    opacity: 0;
+  }
+}
+
+/* Efecto de glitch para texto */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-text::before {
+  animation: glitch-1 2s infinite;
+  color: var(--danger);
+  z-index: -1;
+}
+
+.glitch-text::after {
+  animation: glitch-2 2s infinite;
+  color: var(--primary-color);
+  z-index: -2;
+}
+
+@keyframes glitch-1 {
+  0%, 14%, 15%, 49%, 50%, 99%, 100% {
+    transform: translate(0);
+  }
+  15%, 49% {
+    transform: translate(-2px, -1px);
+  }
+  50%, 99% {
+    transform: translate(1px, -2px);
+  }
+}
+
+@keyframes glitch-2 {
+  0%, 20%, 21%, 62%, 63%, 99%, 100% {
+    transform: translate(0);
+  }
+  21%, 62% {
+    transform: translate(2px, 1px);
+  }
+  63%, 99% {
+    transform: translate(-1px, 2px);
+  }
+}
+
+/* Efecto de pulso para botones */
+.pulse-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.pulse-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.pulse-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Efecto de circuitos en el fondo */
+.circuit-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.05;
+  background-image: 
+    linear-gradient(90deg, var(--primary-color) 1px, transparent 1px),
+    linear-gradient(180deg, var(--primary-color) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: circuit-move 20s linear infinite;
+}
+
+@keyframes circuit-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* Efectos de datos en streaming */
+.data-stream {
+  position: relative;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.data-stream::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+  animation: data-flow 2s ease-in-out infinite;
+}
+
+@keyframes data-flow {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Efecto de loading holográfico */
+.holo-loader {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: relative;
+}
+
+.holo-loader::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid transparent;
+  border-bottom: 2px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efecto de terminal de comando */
+.cyber-terminal {
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Orbitron', monospace;
+  color: var(--success);
+  box-shadow: 
+    0 0 20px rgba(0, 212, 255, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.terminal-line {
+  margin: 0.5rem 0;
+  animation: type-text 2s ease-in-out;
+}
+
+.terminal-line::before {
+  content: '> ';
+  color: var(--primary-color);
+}
+
+.terminal-cursor {
+  animation: blink 1s infinite;
+}
+
+@keyframes type-text {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Efecto de red neuronal */
+.neural-network {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1;
+}
+
+.neuron {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  animation: pulse-neuron 3s ease-in-out infinite;
+}
+
+.connection {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary-color), transparent);
+  animation: data-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse-neuron {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes data-pulse {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+}
+
+/* Efectos hover avanzados */
+.cyber-hover-effect {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.cyber-hover-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.1) 50%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.cyber-hover-effect:hover::before {
+  opacity: 1;
+  animation: sweep 0.6s ease-in-out;
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Efecto de matriz de datos */
+.data-matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0.03;
+}
+
+.matrix-column {
+  position: absolute;
+  top: 0;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  color: var(--primary-color);
+  animation: matrix-fall 10s linear infinite;
+}
+
+@keyframes matrix-fall {
+  0% {
+    transform: translateY(-100vh);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .particle {
+    display: none;
+  }
+  
+  .code-rain,
+  .circuit-pattern,
+  .data-matrix {
+    opacity: 0.02;
+  }
+  
+  .floating-particles {
+    display: none;
+  }
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  .particle,
+  .code-line,
+  .matrix-column,
+  .hologram-scan::before,
+  .circuit-pattern {
+    animation: none;
+  }
+  
+  .glitch-text::before,
+  .glitch-text::after {
+    display: none;
+  }
+}

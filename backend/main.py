@@ -24,6 +24,11 @@ import requests
 import asyncio
 import random
 from typing import List, Dict, Any
+# Nuevas importaciones para el sistema de tarjeta de crédito
+from pydantic import BaseModel, validator
+import uuid
+import re
+import time
 
 app = FastAPI(
     title="🧠 Orbix Systems", 
@@ -89,6 +94,7 @@ async def lanzar_validaciones():
         print(f"🔍 Verificando contenedor {contenedor}...")
         
         # Verificar si Docker está disponible
+        result = None
         try:
             result = subprocess.run(["docker", "ps"], capture_output=True, text=True, timeout=10)
             docker_disponible = True
@@ -96,7 +102,7 @@ async def lanzar_validaciones():
             docker_disponible = False
             print("⚠️ Docker no disponible, intentando método alternativo...")
 
-        if docker_disponible and contenedor in result.stdout:
+        if docker_disponible and result and contenedor in result.stdout:
             print(f"✅ Contenedor {contenedor} ya está corriendo")
             return RedirectResponse(url=f"http://localhost:{puerto}")
 
