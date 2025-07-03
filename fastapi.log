@@ -93,3 +93,45 @@ INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
 INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
 INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
 INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/calculadora/tipos HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [64004]
+INFO:     Started server process [81181]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [81181]
+INFO:     Started server process [81186]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found

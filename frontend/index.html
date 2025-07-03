@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🧠 Orbix Systems</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      color: #00ff88;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: rgba(0, 255, 136, 0.1);
+      border-radius: 15px;
+      border: 2px solid rgba(0, 255, 136, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    
+    .header p {
+      font-size: 1.2em;
+      opacity: 0.8;
+    }
+    
+    @keyframes glow {
+      from { text-shadow: 0 0 20px rgba(0, 255, 136, 0.5); }
+      to { text-shadow: 0 0 30px rgba(0, 255, 136, 0.8), 0 0 40px rgba(0, 255, 136, 0.3); }
+    }
+    
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+    
+    .nav-card {
+      background: rgba(0, 255, 136, 0.05);
+      border: 2px solid rgba(0, 255, 136, 0.2);
+      border-radius: 15px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .nav-card:hover {
+      background: rgba(0, 255, 136, 0.15);
+      border-color: rgba(0, 255, 136, 0.5);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+    }
+    
+    .nav-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .nav-card:hover::before {
+      opacity: 1;
+    }
+    
+    .nav-card .icon {
+      font-size: 4em;
+      margin-bottom: 15px;
+      display: block;
+    }
+    
+    .nav-card h3 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .nav-card p {
+      opacity: 0.8;
+      line-height: 1.5;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .nav-card .btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 12px 25px;
+      background: transparent;
+      border: 2px solid #00ff88;
+      color: #00ff88;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+      font-weight: bold;
+    }
+    
+    .nav-card .btn:hover {
+      background: #00ff88;
+      color: #0a0a0a;
+      transform: scale(1.05);
+    }
+    
+    .status-panel {
+      background: rgba(0, 255, 136, 0.08);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    
+    .status-item {
+      text-align: center;
+      padding: 15px;
+      background: rgba(0, 255, 136, 0.05);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 255, 136, 0.2);
+    }
+    
+    .status-value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #00ff88;
+      margin-bottom: 5px;
+    }
+    
+    .status-label {
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      margin: 5% auto;
+      padding: 0;
+      border: 2px solid rgba(0, 255, 136, 0.3);
+      border-radius: 15px;
+      width: 90%;
+      max-width: 1000px;
+      height: 80vh;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      background: rgba(0, 255, 136, 0.1);
+      padding: 20px;
+      border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      color: #00ff88;
+    }
+    
+    .close {
+      color: #00ff88;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    
+    .close:hover {
+      color: #ffffff;
+    }
+    
+    .modal-body {
+      height: calc(100% - 80px);
+    }
+    
+    .modal-body iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #0a0a0a;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 30px;
+      opacity: 0.6;
+      border-top: 1px solid rgba(0, 255, 136, 0.2);
+      margin-top: 40px;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 255, 136, 0.3);
+      border-radius: 50%;
+      border-top-color: #00ff88;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 10px; }
+      .header h1 { font-size: 2em; }
+      .nav-grid { grid-template-columns: 1fr; gap: 15px; }
+      .nav-card { padding: 20px; }
+      .nav-card .icon { font-size: 3em; }
+      .modal-content { width: 95%; height: 85vh; margin: 2.5% auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>🧠 Orbix Systems</h1>
+      <p>Inteligencia real para negocios reales</p>
+    </header>
+
+    <div class="status-panel">
+      <h3 style="margin-bottom: 20px; text-align: center;">📊 Estado del Sistema</h3>
+      <div class="status-grid">
+        <div class="status-item">
+          <div class="status-value" id="uptime">99.9%</div>
+          <div class="status-label">Uptime</div>
+        </div>
+        <div class="status-item">
+          <div class="status-value" id="services">0</div>
+          <div class="status-label">Servicios Activos</div>
+        </div>
+        <div class="status-item">
+          <div class="status-value" id="events">0</div>
+          <div class="status-label">Eventos Hoy</div>
+        </div>
+        <div class="status-item">
+          <div class="status-value" id="alerts">0</div>
+          <div class="status-label">Alertas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-grid">
+      <div class="nav-card" onclick="mostrarModulo('validaciones')">
+        <span class="icon">🧮</span>
+        <h3>Validaciones</h3>
+        <p>Sistema inteligente de validación de datos. Verifica cédulas, teléfonos, emails y cuentas bancarias en tiempo real.</p>
+        <a href="#" class="btn">Lanzar Validaciones</a>
+      </div>
+
+      <div class="nav-card" onclick="mostrarModulo('sentinel')">
+        <span class="icon">🛡️</span>
+        <h3>Sentinel</h3>
+        <p>Centro de comando de seguridad y monitoreo. Vigilancia 24/7 con detección de amenazas e inteligencia artificial.</p>
+        <a href="#" class="btn">Abrir Sentinel</a>
+      </div>
+
+      <div class="nav-card" onclick="mostrarModulo('calculadora')">
+        <span class="icon">💰</span>
+        <h3>Calculadora</h3>
+        <p>Calculadora financiera avanzada. Préstamos, hipotecas, inversiones y análisis financiero completo.</p>
+        <a href="#" class="btn">Usar Calculadora</a>
+      </div>
+
+      <div class="nav-card" onclick="abrirERP()">
+        <span class="icon">🚀</span>
+        <h3>ERP Odoo</h3>
+        <p>Sistema empresarial completo. Gestión de inventarios, CRM, contabilidad y recursos humanos integrados.</p>
+        <a href="#" class="btn">Ir al ERP</a>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2025 Orbix Systems S.A. | Desarrollado con ❤️ y ☕ | <a href="mailto:info@sistemasorbix.com" style="color: #00ff88;">info@sistemasorbix.com</a></p>
+    </footer>
+  </div>
+
+  <!-- Modal para módulos -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Cargando...</h2>
+        <span class="close" onclick="cerrarModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <iframe id="modal-iframe" src=""></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Variables globales
+    let systemStatus = {};
+    let updateInterval;
+
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+      cargarEstadoSistema();
+      iniciarActualizacionesAutomaticas();
+    });
+
+    function cargarEstadoSistema() {
+      fetch('/api/status')
+        .then(response => response.json())
+        .then(data => {
+          systemStatus = data;
+          actualizarInterfaz(data);
+        })
+        .catch(error => {
+          console.error('Error cargando estado del sistema:', error);
+          mostrarEstadoError();
+        });
+    }
+
+    function actualizarInterfaz(data) {
+      // Actualizar contadores principales
+      document.getElementById('uptime').textContent = data.uptime || '99.9%';
+      
+      const serviciosActivos = Object.values(data.services || {}).filter(s => s === 'active').length;
+      document.getElementById('services').textContent = serviciosActivos;
+
+      // Cargar datos de Sentinel si está disponible
+      cargarDatosSentinel();
+    }
+
+    function cargarDatosSentinel() {
+      fetch('/api/sentinel/status')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('events').textContent = data.events_today || 0;
+          document.getElementById('alerts').textContent = data.active_alerts || 0;
+        })
+        .catch(error => {
+          console.error('Error cargando datos de Sentinel:', error);
+        });
+    }
+
+    function mostrarEstadoError() {
+      document.getElementById('uptime').textContent = '???';
+      document.getElementById('services').textContent = '0';
+      document.getElementById('events').textContent = '0';
+      document.getElementById('alerts').textContent = '?';
+    }
+
+    function iniciarActualizacionesAutomaticas() {
+      updateInterval = setInterval(() => {
+        cargarEstadoSistema();
+      }, 30000); // Actualizar cada 30 segundos
+    }
+
+    function mostrarModulo(modulo) {
+      const modal = document.getElementById('modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalIframe = document.getElementById('modal-iframe');
+
+      const modulos = {
+        validaciones: {
+          titulo: '🧮 Sistema de Validaciones',
+          url: '/validaciones'
+        },
+        sentinel: {
+          titulo: '🛡️ Orbix Sentinel',
+          url: '../public/sentinel_new.html'
+        },
+        calculadora: {
+          titulo: '💰 Calculadora Financiera',
+          url: '../public/calculadora.html'
+        }
+      };
+
+      if (modulos[modulo]) {
+        modalTitle.innerHTML = `<span class="loading"></span> ${modulos[modulo].titulo}`;
+        modalIframe.src = modulos[modulo].url;
+        modal.style.display = 'block';
+
+        // Remover loading cuando se cargue el iframe
+        modalIframe.onload = function() {
+          modalTitle.textContent = modulos[modulo].titulo;
+        };
+      }
+    }
+
+    function abrirERP() {
+      // Abrir ERP en nueva pestaña
+      window.open('https://erp.sistemasorbix.com', '_blank');
+    }
+
+    function cerrarModal() {
+      const modal = document.getElementById('modal');
+      const modalIframe = document.getElementById('modal-iframe');
+      
+      modal.style.display = 'none';
+      modalIframe.src = ''; // Limpiar iframe
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    window.onclick = function(event) {
+      const modal = document.getElementById('modal');
+      if (event.target == modal) {
+        cerrarModal();
+      }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        cerrarModal();
+      }
+      
+      // Atajos de teclado para módulos
+      if (event.ctrlKey || event.metaKey) {
+        switch(event.key) {
+          case '1':
+            event.preventDefault();
+            mostrarModulo('validaciones');
+            break;
+          case '2':
+            event.preventDefault();
+            mostrarModulo('sentinel');
+            break;
+          case '3':
+            event.preventDefault();
+            mostrarModulo('calculadora');
+            break;
+          case '4':
+            event.preventDefault();
+            abrirERP();
+            break;
+        }
+      }
+    });
+
+    // Animaciones adicionales
+    function agregarEfectoMatrix() {
+      const chars = '01';
+      const matrixDiv = document.createElement('div');
+      matrixDiv.style.position = 'fixed';
+      matrixDiv.style.top = '0';
+      matrixDiv.style.left = '0';
+      matrixDiv.style.width = '100%';
+      matrixDiv.style.height = '100%';
+      matrixDiv.style.pointerEvents = 'none';
+      matrixDiv.style.zIndex = '-1';
+      matrixDiv.style.opacity = '0.1';
+      
+      for (let i = 0; i < 100; i++) {
+        const span = document.createElement('span');
+        span.textContent = chars[Math.floor(Math.random() * chars.length)];
+        span.style.position = 'absolute';
+        span.style.left = Math.random() * 100 + '%';
+        span.style.top = Math.random() * 100 + '%';
+        span.style.color = '#00ff88';
+        span.style.fontSize = Math.random() * 10 + 10 + 'px';
+        span.style.animation = `fall ${Math.random() * 3 + 2}s linear infinite`;
+        matrixDiv.appendChild(span);
+      }
+      
+      document.body.appendChild(matrixDiv);
+    }
+
+    // Agregar CSS para animación de matrix
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fall {
+        to {
+          transform: translateY(100vh);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Activar efecto matrix después de 2 segundos
+    setTimeout(agregarEfectoMatrix, 2000);
+  </script>
+</body>
+</html>
