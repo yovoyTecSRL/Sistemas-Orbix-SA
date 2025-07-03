@@ -1,34 +1,34 @@
-✅ 1. README.md — profesional y claro para GitHub
+✅ README.md COMPLETO
 markdown
 Copiar
 Editar
-# 🧠 Orbix Systems - Landing Oficial
+# 🧠 Orbix Systems - Startpage Oficial
 
-Bienvenido al repositorio principal de **Orbix Systems S.A.**, donde se despliega la página de inicio del ecosistema Orbix con soporte para Express (Node.js) y Flask (Python).
+Landing profesional y dinámica para **Sistemas Orbix S.A.**, con enlaces clave hacia servicios Orbix como validaciones, Sentinel, calculadora y el ERP empresarial.
 
 ---
 
 ## 🚀 Funcionalidades
 
-- Interfaz profesional con diseño oscuro y futurista
-- Modo dual: `Node.js + Express` y `Python + Flask`
-- Responsive, rápido y fácil de desplegar en cualquier VPS o Codespace
-- Integración opcional con Odoo, OpenAI y Sentinel
+- Interfaz responsive con diseño futurista estilo dark
+- Enlaces rápidos a módulos críticos de Orbix
+- Soporte dual para despliegue con Node.js o Flask
+- Compatible con Docker y GitHub Actions (Copilot Ready)
 
 ---
 
-## 📁 Estructura del Proyecto
+## 🗂 Estructura del Proyecto
 
-/public/
-├── index.html
-├── styles.css
-└── orbixlogo.png
-index.js # Express server
-package.json
-app.py # Flask server
-levantarserver.sh # Script para levantar con Flask
-Dockerfile # Contenedor multiuso
-.github/workflows/deploy.yml
+/public
+├── index.html # Página principal con menú Orbix
+├── styles.css # Estilos visuales oscuros
+└── orbixlogo.png # Logo oficial
+index.js # Servidor Express (modo Node)
+app.py # Servidor Flask (modo Python)
+levantarserver.sh # Script de ejecución Flask
+Dockerfile # Contenedor universal
+.github/workflows/
+└── deploy.yml # CI/CD automático vía GitHub Actions
 
 yaml
 Copiar
@@ -36,58 +36,79 @@ Editar
 
 ---
 
-## 🧪 Modo Express (Node.js)
+## 🌐 Enlaces rápidos (desde la página)
+
+- 🧠 Inicio → https://sistemasorbix.com
+- ✅ Validaciones → `/validaciones`
+- 🧮 Calculadora → `/calculadora`
+- 🛡️ Sentinel → `/sentinel`
+- 🚀 ERP → [https://erp.sistemasorbix.com](https://erp.sistemasorbix.com)
+
+---
+
+## ▶️ Usar en modo Express
 
 ```bash
 npm install
 npm start
-Accede en: http://localhost:3000
+Abre: http://localhost:3000
 
-🧠 Modo Flask (Python)
+🧠 Usar en modo Flask
 bash
 Copiar
 Editar
 chmod +x levantarserver.sh
 ./levantarserver.sh
-Accede en: http://127.0.0.1:5000
+Abre: http://127.0.0.1:5000
 
-🐳 Deploy con Docker
+🐳 Desplegar con Docker
 bash
 Copiar
 Editar
 docker build -t orbix-web .
 docker run -p 80:80 orbix-web
-☁️ Deploy automático con GitHub Actions (Copilot Ready)
-Revisa .github/workflows/deploy.yml para deploy automático.
+☁️ Deploy automático (Copilot + GitHub Actions)
+Usa .github/workflows/deploy.yml para despliegue automático cada vez que pushes a main.
 
-Ideal para Codespaces, VPS o integraciones continuas.
-
-📫 Contacto
+✉️ Contacto
 Orbix Systems S.A.
-Email: info@sistemasorbix.com
 Web: https://sistemasorbix.com
+Correo: info@sistemasorbix.com
 
-yaml
+php-template
 Copiar
 Editar
 
 ---
 
-## ✅ 2. `Dockerfile` — soporta tanto Node como Flask (multi-modo)
+## ✅ `index.html` con menú completo y enlaces clave
 
-```Dockerfile
-# Dockerfile para Orbix Systems
+```html
+<header>
+  <h1>🧠 Orbix Systems</h1>
+  <p>Inteligencia real para negocios reales.</p>
+  <nav>
+    <a href="/">Inicio</a>
+    <a href="#validaciones">✅ Validaciones</a>
+    <a href="#calculadora">🧮 Calculadora</a>
+    <a href="#sentinel">🛡️ Sentinel</a>
+    <a href="https://erp.sistemasorbix.com" target="_blank">🚀 ERP</a>
+  </nav>
+</header>
+(Ya está incluido en tu versión actual con estilos adaptados)
 
+✅ Dockerfile
+Dockerfile
+Copiar
+Editar
 FROM python:3.10-slim
 
 WORKDIR /app
 
 COPY . .
 
-# Instalar dependencias de Python (para Flask)
 RUN pip install flask gunicorn
 
-# Instalar Node.js + npm para modo Express
 RUN apt-get update && apt-get install -y curl gnupg \
   && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
   && apt-get install -y nodejs \
@@ -96,7 +117,7 @@ RUN apt-get update && apt-get install -y curl gnupg \
 EXPOSE 80
 
 CMD ["bash", "levantarserver.sh"]
-✅ 3. .github/workflows/deploy.yml — para GitHub Copilot + Actions
+✅ .github/workflows/deploy.yml
 yaml
 Copiar
 Editar
@@ -104,8 +125,7 @@ name: 🚀 Deploy Orbix Landing
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -113,30 +133,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Clonar repositorio
+      - name: 📥 Checkout
         uses: actions/checkout@v3
 
-      - name: 🐍 Configurar Python
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: 🧪 Instalar dependencias Flask
+      - name: 🧠 Install Flask
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install flask gunicorn
 
-      - name: 🧰 Instalar Node.js
+      - name: 🧰 Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: 📦 Instalar dependencias Node.js
+      - name: 📦 Install Node Dependencies
         run: npm install
 
-      - name: 🐳 Construir imagen Docker
+      - name: 🐳 Build Docker Image
         run: docker build -t orbix-web .
 
-      - name: 🚀 Ejecutar contenedor
+      - name: 🚀 Run Docker
         run: docker run -d -p 80:80 orbix-web
