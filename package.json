@@ -1,0 +1,23 @@
+{
+  "name": "orbix-systems",
+  "version": "1.0.0",
+  "description": "Orbix Systems - Inteligencia real para negocios reales",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.9"
+  },
+  "keywords": [
+    "orbix",
+    "systems",
+    "web",
+    "server"
+  ],
+  "author": "Orbix Systems",
+  "license": "ISC"
+}

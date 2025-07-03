@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🛡️ Sentinel - Orbix Systems</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body class="sentinel-dashboard">
+  <header>
+    <h1>🧠 Orbix Systems</h1>
+    <p>Inteligencia real para negocios reales.</p>
+    <nav>
+      <a href="/">Inicio</a>
+      <a href="/validaciones">✅ Validaciones</a>
+      <a href="/calculadora">🧮 Calculadora</a>
+      <a href="/sentinel" class="active">🛡️ Sentinel</a>
+      <a href="https://erp.sistemasorbix.com" target="_blank">🚀 ERP</a>
+    </nav>
+  </header>
+
+  <main class="sentinel-main">
+    <!-- Header Dashboard -->
+    <section class="dashboard-header">
+      <div class="system-status">
+        <h1>🛡️ Orbix Sentinel</h1>
+        <p>Centro de Comando de Seguridad y Monitoreo</p>
+        <div class="status-badges">
+          <span class="status-badge online" id="system-status">🟢 OPERATIVO</span>
+          <span class="status-badge uptime" id="uptime-badge">⏱️ Uptime: 99.9%</span>
+          <span class="status-badge timestamp" id="last-update">🕒 Actualizado: ahora</span>
+        </div>
+      </div>
+      
+      <div class="quick-stats">
+        <div class="stat-box">
+          <div class="stat-number" id="events-today">0</div>
+          <div class="stat-label">Eventos Hoy</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="active-alerts">0</div>
+          <div class="stat-label">Alertas Activas</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="threats-blocked">0</div>
+          <div class="stat-label">Amenazas Bloqueadas</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="active-connections">0</div>
+          <div class="stat-label">Conexiones Activas</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Grid -->
+    <section class="dashboard-grid">
+      <!-- Network Traffic Monitor -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>🌐 Tráfico de Red</h3>
+          <div class="chart-controls">
+            <select id="traffic-timespan">
+              <option value="1h">Última hora</option>
+              <option value="6h">Últimas 6 horas</option>
+              <option value="24h" selected>Últimas 24 horas</option>
+            </select>
+          </div>
+        </div>
+        <canvas id="networkTrafficChart"></canvas>
+        <div class="chart-stats">
+          <span>Entrada: <strong id="traffic-in">0 MB/s</strong></span>
+          <span>Salida: <strong id="traffic-out">0 MB/s</strong></span>
+          <span>Total: <strong id="traffic-total">0 GB</strong></span>
+        </div>
+      </div>
+
+      <!-- Security Events -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>🔐 Eventos de Seguridad</h3>
+          <div class="chart-controls">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="critical">Críticos</button>
+            <button class="filter-btn" data-filter="warning">Advertencias</button>
+          </div>
+        </div>
+        <canvas id="securityEventsChart"></canvas>
+        <div class="chart-stats">
+          <span class="critical">Críticos: <strong id="critical-events">0</strong></span>
+          <span class="warning">Advertencias: <strong id="warning-events">0</strong></span>
+          <span class="info">Info: <strong id="info-events">0</strong></span>
+        </div>
+      </div>
+
+      <!-- System Performance -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>⚡ Rendimiento del Sistema</h3>
+
+          <div class="chart-controls">
+            <button class="refresh-btn" onclick="refreshSystemMetrics()">🔄</button>
+          </div>
+        </div>
+        <canvas id="systemPerformanceChart"></canvas>
+        <div class="chart-stats">
+          <span>CPU: <strong id="cpu-usage">0%</strong></span>
+          <span>RAM: <strong id="ram-usage">0%</strong></span>
+          <span>Disco: <strong id="disk-usage">0%</strong></span>
+        </div>
+      </div>
+
+      <!-- Threat Detection -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>🚨 Detección de Amenazas</h3>
+          <div class="threat-indicator">
+            <span id="threat-level" class="threat-low">BAJO</span>
+          </div>
+        </div>
+        <canvas id="threatDetectionChart"></canvas>
+        <div class="chart-stats">
+          <span class="blocked">Bloqueadas: <strong id="threats-blocked-count">0</strong></span>
+          <span class="detected">Detectadas: <strong id="threats-detected-count">0</strong></span>
+          <span class="resolved">Resueltas: <strong id="threats-resolved-count">0</strong></span>
+        </div>
+      </div>
+
+      <!-- Bandwidth Usage -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>📊 Uso de Ancho de Banda</h3>
+          <div class="bandwidth-total">
+            <span id="bandwidth-total">0 Mbps</span>
+          </div>
+        </div>
+        <canvas id="bandwidthChart"></canvas>
+        <div class="chart-stats">
+          <span>Pico: <strong id="bandwidth-peak">0 Mbps</strong></span>
+          <span>Promedio: <strong id="bandwidth-avg">0 Mbps</strong></span>
+          <span>Disponible: <strong id="bandwidth-available">100 Mbps</strong></span>
+        </div>
+      </div>
+
+      <!-- Geographic Activity -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>🌍 Actividad Geográfica</h3>
+          <div class="chart-controls">
+            <button class="filter-btn active" data-geo="all">Todos</button>
+            <button class="filter-btn" data-geo="suspicious">Sospechosos</button>
+          </div>
+        </div>
+        <canvas id="geographicChart"></canvas>
+        <div class="chart-stats">
+          <span>Países: <strong id="countries-count">0</strong></span>
+          <span>IPs Únicas: <strong id="unique-ips">0</strong></span>
+          <span>Sospechosas: <strong id="suspicious-ips">0</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-time Activity Feed -->
+    <section class="activity-feed">
+      <div class="feed-header">
+        <h3>📈 Actividad en Tiempo Real</h3>
+        <div class="feed-controls">
+          <button class="pause-btn" id="pause-feed">⏸️ Pausar</button>
+          <button class="clear-btn" onclick="clearActivityFeed()">🗑️ Limpiar</button>
+        </div>
+      </div>
+      <div class="feed-container" id="activity-feed">
+        <!-- Los eventos se cargarán dinámicamente aquí -->
+      </div>
+    </section>
+
+    <!-- System Info Panel -->
+    <section class="system-info">
+      <div class="info-grid">
+        <div class="info-card">
+          <h4>🔌 Puertos del Sistema</h4>
+          <ul>
+            <li>Principal: <code>3000</code> ✅</li>
+            <li>Dashboard: <code>3001</code> ⏳</li>
+            <li>API: <code>3002</code> ⏳</li>
+            <li>WebSocket: <code>3003</code> ⏳</li>
+          </ul>
+        </div>
+        
+        <div class="info-card">
+          <h4>🛡️ Protecciones Activas</h4>
+          <ul>
+            <li>Firewall: <span class="status-active">Activo</span></li>
+            <li>IDS/IPS: <span class="status-active">Activo</span></li>
+            <li>Antimalware: <span class="status-active">Activo</span></li>
+            <li>DDoS Protection: <span class="status-active">Activo</span></li>
+          </ul>
+        </div>
+        
+        <div class="info-card">
+          <h4>📡 APIs Monitoreadas</h4>
+          <ul>
+            <li>FastAPI (8000): <span id="fastapi-status" class="status-checking">Verificando...</span></li>
+            <li>Odoo (8070): <span id="odoo-status" class="status-checking">Verificando...</span></li>
+            <li>PostgreSQL (5432): <span id="postgres-status" class="status-checking">Verificando...</span></li>
+            <li>Node.js (3000): <span class="status-active">Activo</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Orbix Systems S.A. | Centro de Seguridad y Monitoreo | <a href="mailto:security@sistemasorbix.com">security@sistemasorbix.com</a></p>
+  </footer>
+
+  <script>
+    // Variables globales para los gráficos
+    let charts = {};
+    let realTimeData = {
+      networkTraffic: [],
+      securityEvents: [],
+      systemPerformance: [],
+      threatDetection: [],
+      bandwidth: [],
+      geographic: []
+    };
+    let isPaused = false;
+    let updateInterval;
+
+    // Configuración de colores y temas
+    const colors = {
+      primary: '#3498db',
+      success: '#27ae60',
+      warning: '#f39c12',
+      danger: '#e74c3c',
+      info: '#9b59b6',
+      dark: '#2c3e50',
+      light: '#ecf0f1'
+    };
+
+    // Inicializar dashboard al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeCharts();
+      startRealTimeUpdates();
+      checkAPIStatus();
+    });
+
+    function initializeCharts() {
+      // Gráfico de Tráfico de Red
+      const networkCtx = document.getElementById('networkTrafficChart').getContext('2d');
+      charts.networkTraffic = new Chart(networkCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Entrada (MB/s)',
+            data: [],
+            borderColor: colors.primary,
+            backgroundColor: colors.primary + '20',
+            fill: true,
+            tension: 0.4
+          }, {
+            label: 'Salida (MB/s)',
+            data: [],
+            borderColor: colors.success,
+            backgroundColor: colors.success + '20',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'minute'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'MB/s'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top'
+            }
+          }
+        }
+      });
+
+      // Gráfico de Eventos de Seguridad
+      const securityCtx = document.getElementById('securityEventsChart').getContext('2d');
+      charts.securityEvents = new Chart(securityCtx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Eventos Críticos',
+            data: [],
+            backgroundColor: colors.danger,
+            borderColor: colors.danger,
+            borderWidth: 1
+          }, {
+            label: 'Advertencias',
+            data: [],
+            backgroundColor: colors.warning,
+            borderColor: colors.warning,
+            borderWidth: 1
+          }, {
+            label: 'Información',
+            data: [],
+            backgroundColor: colors.info,
+            borderColor: colors.info,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Eventos'
+              }
+            }
+          }
+        }
+      });
+
+      // Gráfico de Rendimiento del Sistema
+      const performanceCtx = document.getElementById('systemPerformanceChart').getContext('2d');
+      charts.systemPerformance = new Chart(performanceCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['CPU', 'RAM', 'Disco', 'Disponible'],
+          datasets: [{
+            data: [25, 45, 30, 70],
+            backgroundColor: [colors.danger, colors.warning, colors.info, colors.light],
+            borderColor: [colors.danger, colors.warning, colors.info, colors.light],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+
+      // Gráfico de Detección de Amenazas
+      const threatCtx = document.getElementById('threatDetectionChart').getContext('2d');
+      charts.threatDetection = new Chart(threatCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Amenazas Detectadas',
+            data: [],
+            borderColor: colors.danger,
+            backgroundColor: colors.danger + '20',
+            fill: true,
+            tension: 0.4
+          }, {
+            label: 'Amenazas Bloqueadas',
+            data: [],
+            borderColor: colors.success,
+            backgroundColor: colors.success + '20',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'minute'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Número de Amenazas'
+              }
+            }
+          }
+        }
+      });
+
+      // Gráfico de Ancho de Banda
+      const bandwidthCtx = document.getElementById('bandwidthChart').getContext('2d');
+      charts.bandwidth = new Chart(bandwidthCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Uso de Ancho de Banda (Mbps)',
+            data: [],
+            borderColor: colors.primary,
+            backgroundColor: colors.primary + '20',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'minute'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Mbps'
+              }
+            }
+          }
+        }
+      });
+
+      // Gráfico Geográfico (Países más activos)
+      const geoCtx = document.getElementById('geographicChart').getContext('2d');
+      charts.geographic = new Chart(geoCtx, {
+        type: 'horizontalBar',
+        data: {
+          labels: ['Costa Rica', 'Estados Unidos', 'México', 'Colombia', 'España'],
+          datasets: [{
+            label: 'Conexiones',
+            data: [150, 89, 45, 32, 28],
+            backgroundColor: [colors.success, colors.primary, colors.warning, colors.info, colors.dark],
+            borderColor: [colors.success, colors.primary, colors.warning, colors.info, colors.dark],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Número de Conexiones'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function startRealTimeUpdates() {
+      updateInterval = setInterval(() => {
+        if (!isPaused) {
+          updateNetworkTraffic();
+          updateSecurityEvents();
+          updateSystemPerformance();
+          updateThreatDetection();
+          updateBandwidth();
+          updateGeographicData();
+          updateActivityFeed();
+          updateQuickStats();
+        }
+      }, 2000); // Actualizar cada 2 segundos
+    }
+
+    function updateNetworkTraffic() {
+      const now = new Date();
+      const inTraffic = Math.random() * 50 + 10; // Simular 10-60 MB/s
+      const outTraffic = Math.random() * 30 + 5;  // Simular 5-35 MB/s
+
+      // Actualizar gráfico
+      charts.networkTraffic.data.labels.push(now);
+      charts.networkTraffic.data.datasets[0].data.push(inTraffic);
+      charts.networkTraffic.data.datasets[1].data.push(outTraffic);
+
+      // Mantener solo los últimos 20 puntos
+      if (charts.networkTraffic.data.labels.length > 20) {
+        charts.networkTraffic.data.labels.shift();
+        charts.networkTraffic.data.datasets[0].data.shift();
+        charts.networkTraffic.data.datasets[1].data.shift();
+      }
+
+      charts.networkTraffic.update('none');
+
+      // Actualizar estadísticas
+      document.getElementById('traffic-in').textContent = inTraffic.toFixed(1) + ' MB/s';
+      document.getElementById('traffic-out').textContent = outTraffic.toFixed(1) + ' MB/s';
+      document.getElementById('traffic-total').textContent = ((inTraffic + outTraffic) / 1000).toFixed(2) + ' GB';
+    }
+
+    function updateSecurityEvents() {
+      const critical = Math.floor(Math.random() * 5);
+      const warning = Math.floor(Math.random() * 10);
+      const info = Math.floor(Math.random() * 20);
+
+      // Actualizar contadores
+      document.getElementById('critical-events').textContent = critical;
+      document.getElementById('warning-events').textContent = warning;
+      document.getElementById('info-events').textContent = info;
+
+      // Simular datos para el gráfico
+      const now = new Date().toLocaleTimeString();
+      charts.securityEvents.data.labels.push(now);
+      charts.securityEvents.data.datasets[0].data.push(critical);
+      charts.securityEvents.data.datasets[1].data.push(warning);
+      charts.securityEvents.data.datasets[2].data.push(info);
+
+      // Mantener solo los últimos 10 puntos
+      if (charts.securityEvents.data.labels.length > 10) {
+        charts.securityEvents.data.labels.shift();
+        charts.securityEvents.data.datasets[0].data.shift();
+        charts.securityEvents.data.datasets[1].data.shift();
+        charts.securityEvents.data.datasets[2].data.shift();
+      }
+
+      charts.securityEvents.update('none');
+    }
+
+    function updateSystemPerformance() {
+      const cpu = Math.random() * 80 + 10; // 10-90%
+      const ram = Math.random() * 70 + 20; // 20-90%
+      const disk = Math.random() * 60 + 30; // 30-90%
+
+      // Actualizar gráfico de dona
+      charts.systemPerformance.data.datasets[0].data = [cpu, ram, disk, 100 - Math.max(cpu, ram, disk)];
+      charts.systemPerformance.update('none');
+
+      // Actualizar estadísticas
+      document.getElementById('cpu-usage').textContent = cpu.toFixed(1) + '%';
+      document.getElementById('ram-usage').textContent = ram.toFixed(1) + '%';
+      document.getElementById('disk-usage').textContent = disk.toFixed(1) + '%';
+    }
+
+    function updateThreatDetection() {
+      const now = new Date();
+      const detected = Math.floor(Math.random() * 8);
+      const blocked = Math.floor(Math.random() * 5);
+
+      charts.threatDetection.data.labels.push(now);
+      charts.threatDetection.data.datasets[0].data.push(detected);
+      charts.threatDetection.data.datasets[1].data.push(blocked);
+
+      // Mantener solo los últimos 15 puntos
+      if (charts.threatDetection.data.labels.length > 15) {
+        charts.threatDetection.data.labels.shift();
+        charts.threatDetection.data.datasets[0].data.shift();
+        charts.threatDetection.data.datasets[1].data.shift();
+      }
+
+      charts.threatDetection.update('none');
+
+      // Actualizar contadores
+      document.getElementById('threats-detected-count').textContent = detected;
+      document.getElementById('threats-blocked-count').textContent = blocked;
+      document.getElementById('threats-resolved-count').textContent = Math.floor(detected * 0.8);
+
+      // Actualizar nivel de amenaza
+      const threatLevel = document.getElementById('threat-level');
+      if (detected > 5) {
+        threatLevel.textContent = 'ALTO';
+        threatLevel.className = 'threat-high';
+      } else if (detected > 2) {
+        threatLevel.textContent = 'MEDIO';
+        threatLevel.className = 'threat-medium';
+      } else {
+        threatLevel.textContent = 'BAJO';
+        threatLevel.className = 'threat-low';
+      }
+    }
+
+    function updateBandwidth() {
+      const now = new Date();
+      const usage = Math.random() * 80 + 10; // 10-90 Mbps
+
+      charts.bandwidth.data.labels.push(now);
+      charts.bandwidth.data.datasets[0].data.push(usage);
+
+      // Mantener solo los últimos 25 puntos
+      if (charts.bandwidth.data.labels.length > 25) {
+        charts.bandwidth.data.labels.shift();
+        charts.bandwidth.data.datasets[0].data.shift();
+      }
+
+      charts.bandwidth.update('none');
+
+      // Actualizar estadísticas
+      document.getElementById('bandwidth-total').textContent = usage.toFixed(1) + ' Mbps';
+      document.getElementById('bandwidth-peak').textContent = Math.max(...charts.bandwidth.data.datasets[0].data).toFixed(1) + ' Mbps';
+      document.getElementById('bandwidth-avg').textContent = (charts.bandwidth.data.datasets[0].data.reduce((a,b) => a+b, 0) / charts.bandwidth.data.datasets[0].data.length).toFixed(1) + ' Mbps';
+    }
+
+    function updateGeographicData() {
+      // Simular cambios en datos geográficos ocasionalmente
+      if (Math.random() < 0.1) { // 10% de probabilidad
+        const countries = ['Costa Rica', 'Estados Unidos', 'México', 'Colombia', 'España', 'Brasil', 'Argentina'];
+        const newData = countries.slice(0, 5).map(() => Math.floor(Math.random() * 200));
+        
+        charts.geographic.data.datasets[0].data = newData;
+        charts.geographic.update('none');
+
+        // Actualizar estadísticas
+        document.getElementById('countries-count').textContent = '5';
+        document.getElementById('unique-ips').textContent = newData.reduce((a,b) => a+b, 0);
+        document.getElementById('suspicious-ips').textContent = Math.floor(newData.reduce((a,b) => a+b, 0) * 0.05);
+      }
+    }
+
+    function updateActivityFeed() {
+      const activities = [
+        { type: 'network', message: 'Nueva conexión desde IP: 192.168.1.' + Math.floor(Math.random() * 255), level: 'info' },
+        { type: 'security', message: 'Intento de login fallido detectado', level: 'warning' },
+        { type: 'threat', message: 'Malware bloqueado en endpoint WS-' + Math.floor(Math.random() * 100), level: 'critical' },
+        { type: 'system', message: 'Backup automático completado', level: 'success' },
+        { type: 'network', message: 'Tráfico anómalo detectado en puerto ' + Math.floor(Math.random() * 65535), level: 'warning' },
+        { type: 'security', message: 'Certificado SSL renovado automáticamente', level: 'success' },
+        { type: 'threat', message: 'Escaneo de puertos bloqueado desde IP externa', level: 'critical' }
+      ];
+
+      // Agregar nuevo evento aleatorio
+      if (Math.random() < 0.3) { // 30% de probabilidad
+        const activity = activities[Math.floor(Math.random() * activities.length)];
+        const now = new Date().toLocaleTimeString();
+        
+        const feedContainer = document.getElementById('activity-feed');
+        const eventElement = document.createElement('div');
+        eventElement.className = `feed-event ${activity.level}`;
+        eventElement.innerHTML = `
+          <div class="event-icon">${getEventIcon(activity.type)}</div>
+          <div class="event-content">
+            <div class="event-message">${activity.message}</div>
+            <div class="event-time">${now}</div>
+          </div>
+          <div class="event-level ${activity.level}">${activity.level.toUpperCase()}</div>
+        `;
+        
+        feedContainer.insertBefore(eventElement, feedContainer.firstChild);
+        
+        // Mantener solo los últimos 20 eventos
+        if (feedContainer.children.length > 20) {
+          feedContainer.removeChild(feedContainer.lastChild);
+        }
+      }
+    }
+
+    function updateQuickStats() {
+      document.getElementById('events-today').textContent = Math.floor(Math.random() * 500 + 100);
+      document.getElementById('active-alerts').textContent = Math.floor(Math.random() * 10 + 1);
+      document.getElementById('threats-blocked').textContent = Math.floor(Math.random() * 50 + 10);
+      document.getElementById('active-connections').textContent = Math.floor(Math.random() * 200 + 50);
+      
+      // Actualizar timestamp
+      document.getElementById('last-update').textContent = '🕒 Actualizado: ' + new Date().toLocaleTimeString();
+    }
+
+    function getEventIcon(type) {
+      const icons = {
+        'network': '🌐',
+        'security': '🔐',
+        'threat': '🚨',
+        'system': '⚙️'
+      };
+      return icons[type] || '📋';
+    }
+
+    async function checkAPIStatus() {
+      // Verificar FastAPI
+      try {
+        const response = await fetch('/api/orbix/health');
+        document.getElementById('fastapi-status').textContent = 'Activo';
+        document.getElementById('fastapi-status').className = 'status-active';
+      } catch (error) {
+        document.getElementById('fastapi-status').textContent = 'Desconectado';
+        document.getElementById('fastapi-status').className = 'status-inactive';
+      }
+
+      // Simular verificación de otros servicios
+      setTimeout(() => {
+        document.getElementById('odoo-status').textContent = 'Desconectado';
+        document.getElementById('odoo-status').className = 'status-inactive';
+        document.getElementById('postgres-status').textContent = 'Desconectado';
+        document.getElementById('postgres-status').className = 'status-inactive';
+      }, 2000);
+    }
+
+    function refreshSystemMetrics() {
+      // Forzar actualización de métricas
+      updateSystemPerformance();
+      updateQuickStats();
+      
+      // Mostrar feedback visual
+      const btn = event.target;
+      btn.textContent = '✅';
+      setTimeout(() => {
+        btn.textContent = '🔄';
+      }, 1000);
+    }
+
+    function clearActivityFeed() {
+      document.getElementById('activity-feed').innerHTML = '';
+    }
+
+    // Control de pausa/reanudación
+    document.getElementById('pause-feed').addEventListener('click', function() {
+      isPaused = !isPaused;
+      this.textContent = isPaused ? '▶️ Reanudar' : '⏸️ Pausar';
+      this.className = isPaused ? 'resume-btn' : 'pause-btn';
+    });
+
+    // Control de filtros
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Remover clase active de hermanos
+        this.parentNode.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        // Agregar clase active al botón clickeado
+        this.classList.add('active');
+        
+        // Aquí se podría implementar la lógica de filtrado
+        console.log('Filtro aplicado:', this.dataset.filter || this.dataset.geo);
+      });
+    });
+  </script>
+
+  <style>
+    .sentinel-dashboard {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      min-height: 100vh;
+      color: white;
+    }
+
+    .sentinel-main {
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: rgba(255,255,255,0.1);
+      padding: 25px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    .system-status h1 {
+      margin: 0;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .status-badges {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    .status-badge.online {
+      background: #27ae60;
+      color: white;
+    }
+
+    .status-badge.uptime {
+      background: #3498db;
+      color: white;
+    }
+
+    .status-badge.timestamp {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .stat-box {
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .stat-number {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #f1c40f;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .chart-container {
+      background: rgba(255,255,255,0.95);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      color: #2c3e50;
+      min-height: 350px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ecf0f1;
+    }
+
+    .chart-header h3 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 1.3em;
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .filter-btn, .refresh-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #95a5a6;
+      color: white;
+      cursor: pointer;
+      font-size: 0.8em;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: #3498db;
+    }
+
+    .refresh-btn:hover {
+      background: #27ae60;
+    }
+
+    .chart-container canvas {
+      height: 200px !important;
+    }
+
+    .chart-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #ecf0f1;
+      font-size: 0.9em;
+    }
+
+    .chart-stats span {
+      color: #7f8c8d;
+    }
+
+    .chart-stats strong {
+      color: #2c3e50;
+    }
+
+    .chart-stats .critical strong {
+      color: #e74c3c;
+    }
+
+    .chart-stats .warning strong {
+      color: #f39c12;
+    }
+
+    .chart-stats .info strong {
+      color: #9b59b6;
+    }
+
+    .chart-stats .blocked strong {
+      color: #e74c3c;
+    }
+
+    .chart-stats .detected strong {
+      color: #f39c12;
+    }
+
+    .chart-stats .resolved strong {
+      color: #27ae60;
+    }
+
+    .threat-indicator {
+      display: flex;
+      align-items: center;
+    }
+
+    .threat-low {
+      background: #27ae60;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 0.8em;
+    }
+
+    .threat-medium {
+      background: #f39c12;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 0.8em;
+    }
+
+    .threat-high {
+      background: #e74c3c;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 0.8em;
+      animation: pulse 1s infinite;
+    }
+
+    .bandwidth-total {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #3498db;
+    }
+
+    .activity-feed {
+      background: rgba(255,255,255,0.95);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 30px;
+      color: #2c3e50;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #ecf0f1;
+    }
+
+    .feed-header h3 {
+      margin: 0;
+      font-size: 1.3em;
+    }
+
+    .feed-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pause-btn, .resume-btn, .clear-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .pause-btn, .resume-btn {
+      background: #f39c12;
+      color: white;
+    }
+
+    .clear-btn {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .feed-container {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .feed-event {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid #95a5a6;
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+    }
+
+    .feed-event.critical {
+      border-left-color: #e74c3c;
+      background: #fff5f5;
+    }
+
+    .feed-event.warning {
+      border-left-color: #f39c12;
+      background: #fffbf0;
+    }
+
+    .feed-event.success {
+      border-left-color: #27ae60;
+      background: #f0fff4;
+    }
+
+    .feed-event.info {
+      border-left-color: #3498db;
+      background: #f0f8ff;
+    }
+
+    .event-icon {
+      font-size: 1.5em;
+      margin-right: 15px;
+    }
+
+    .event-content {
+      flex: 1;
+    }
+
+    .event-message {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .event-time {
+      font-size: 0.8em;
+      color: #7f8c8d;
+    }
+
+    .event-level {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7em;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .event-level.critical {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .event-level.warning {
+      background: #f39c12;
+      color: white;
+    }
+
+    .event-level.success {
+      background: #27ae60;
+      color: white;
+    }
+
+    .event-level.info {
+      background: #3498db;
+      color: white;
+    }
+
+    .system-info {
+      background: rgba(255,255,255,0.95);
+      border-radius: 15px;
+      padding: 20px;
+      color: #2c3e50;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .info-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #3498db;
+    }
+
+    .info-card h4 {
+      margin: 0 0 15px 0;
+      color: #2c3e50;
+    }
+
+    .info-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .info-card li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    .info-card li:last-child {
+      border-bottom: none;
+    }
+
+    .info-card code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+
+    .status-active {
+      color: #27ae60;
+      font-weight: bold;
+    }
+
+    .status-inactive {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    .status-checking {
+      color: #f39c12;
+      font-weight: bold;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>
+      
+      if (eventsElement) {
+        const currentEvents = parseInt(eventsElement.textContent);
+        eventsElement.textContent = (currentEvents + Math.floor(Math.random() * 5)).toLocaleString();
+      }
+      
+      if (alertsElement) {
+        alertsElement.textContent = Math.floor(Math.random() * 10);
+      }
+      
+      if (threatsElement) {
+        const currentThreats = parseInt(threatsElement.textContent);
+        if (Math.random() > 0.9) {
+          threatsElement.textContent = currentThreats + 1;
+        }
+      }
+    }
+
+    // Actualizar contadores cada 5 segundos
+    setInterval(updateCounters, 5000);
+
+    // Inicializar gráfico simple
+    const canvas = document.getElementById('network-chart');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      
+      function drawChart() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#00ff88';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let i = 0; i < canvas.width; i += 10) {
+          const y = canvas.height / 2 + Math.sin(i * 0.02 + Date.now() * 0.001) * 50;
+          if (i === 0) {
+            ctx.moveTo(i, y);
+          } else {
+            ctx.lineTo(i, y);
+          }
+        }
+        ctx.stroke();
+      }
+      
+      setInterval(drawChart, 100);
+    }
+  </script>
+</body>
+</html>
