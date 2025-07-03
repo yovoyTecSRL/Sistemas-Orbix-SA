@@ -1,0 +1,38 @@
+name: 🚀 Deploy Orbix Landing
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 🧠 Flask Setup
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install flask gunicorn
+
+      - name: 🧰 Node Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 📦 Instalar Node
+        run: npm install
+
+      - name: 🐳 Docker Build
+        run: docker build -t orbix-web .
+
+      - name: 🚀 Docker Run
+        run: docker run -d -p 80:80 orbix-web
