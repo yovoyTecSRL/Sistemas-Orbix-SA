@@ -20,10 +20,16 @@ import os
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
-import requests
 import asyncio
 import random
 from typing import List, Dict, Any
+
+try:
+    import requests
+except ImportError:
+    # Si requests no está disponible, lo instalamos o usamos una alternativa
+    subprocess.run(["pip3", "install", "requests"], capture_output=True)
+    import requests
 
 app = FastAPI(
     title="🧠 Orbix Systems", 
