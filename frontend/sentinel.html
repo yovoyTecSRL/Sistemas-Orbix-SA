@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Orbix Sentinel - Sistema de Monitoreo</title>
+    <link rel="stylesheet" href="cyber-effects.css">
+    <style>
+        :root {
+            --primary-green: #00ff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-green: #00ff00;
+            --text-white: #ffffff;
+            --border-green: #00ff00;
+            --error-red: #ff3030;
+            --warning-yellow: #ffff00;
+            --success-green: #00ff00;
+            --info-blue: #00aaff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--dark-bg);
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sentinel-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--primary-green);
+            background: linear-gradient(135deg, #001100, #003300);
+        }
+
+        .sentinel-header h1 {
+            color: var(--primary-green);
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px var(--primary-green);
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 15px;
+            border-bottom: 1px solid var(--primary-green);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-light.online {
+            background: var(--success-green);
+            box-shadow: 0 0 10px var(--success-green);
+        }
+
+        .status-light.warning {
+            background: var(--warning-yellow);
+            box-shadow: 0 0 10px var(--warning-yellow);
+        }
+
+        .status-light.critical {
+            background: var(--error-red);
+            box-shadow: 0 0 10px var(--error-red);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--primary-green);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--primary-green);
+            padding-bottom: 10px;
+        }
+
+        .metric-title {
+            color: var(--primary-green);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .refresh-btn {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid var(--primary-green);
+            color: var(--primary-green);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: var(--primary-green);
+            color: var(--dark-bg);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .metric-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .detail-value {
+            color: var(--primary-green);
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .progress-fill.low {
+            background: linear-gradient(90deg, var(--success-green), #00aa00);
+        }
+
+        .progress-fill.medium {
+            background: linear-gradient(90deg, var(--warning-yellow), #ffaa00);
+        }
+
+        .progress-fill.high {
+            background: linear-gradient(90deg, var(--error-red), #aa0000);
+        }
+
+        .event-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(0, 255, 0, 0.05);
+            border-left: 3px solid var(--primary-green);
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .event-level {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .event-level.critical {
+            background: var(--error-red);
+            color: white;
+        }
+
+        .event-level.warning {
+            background: var(--warning-yellow);
+            color: black;
+        }
+
+        .event-level.info {
+            background: var(--info-blue);
+            color: white;
+        }
+
+        .event-level.success {
+            background: var(--success-green);
+            color: black;
+        }
+
+        .country-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .country-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            background: rgba(0, 255, 0, 0.05);
+            border-radius: 5px;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .threat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .threat-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 48, 48, 0.1);
+            border: 1px solid var(--error-red);
+            border-radius: 5px;
+        }
+
+        .threat-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--error-red);
+        }
+
+        .threat-type {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .auto-refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-green);
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .refresh-timer {
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-top: 2px solid var(--primary-green);
+            border-radius: 50%;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .large-display {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .level-indicator {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .level-bajo {
+            background: rgba(0, 255, 0, 0.2);
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+        }
+
+        .level-medio {
+            background: rgba(255, 255, 0, 0.2);
+            color: var(--warning-yellow);
+            border: 1px solid var(--warning-yellow);
+        }
+
+        .level-alto {
+            background: rgba(255, 48, 48, 0.2);
+            color: var(--error-red);
+            border: 1px solid var(--error-red);
+        }
+
+        .chart-container {
+            height: 200px;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            padding: 20px 0;
+            border-top: 1px solid var(--primary-green);
+        }
+
+        .chart-bar {
+            width: 20px;
+            background: linear-gradient(to top, var(--primary-green), #00aa00);
+            border-radius: 3px 3px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                padding: 10px;
+            }
+            
+            .metric-card {
+                padding: 15px;
+            }
+            
+            .sentinel-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sentinel-header">
+        <h1>🛡️ ORBIX SENTINEL</h1>
+        <p>Sistema de Monitoreo y Seguridad en Tiempo Real</p>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="status-light online" id="systemStatus"></div>
+            <span>Sistema Operacional</span>
+        </div>
+        <div class="status-item">
+            <span>Uptime: <strong id="uptime">99.97%</strong></span>
+        </div>
+        <div class="status-item">
+            <span>Última actualización: <strong id="lastUpdate">--:--:--</strong></span>
+        </div>
+    </div>
+
+    <div class="auto-refresh-indicator">
+        <div class="refresh-timer"></div>
+        <span>Auto-actualización cada 3s</span>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Tráfico de Red -->
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">🌐 Tráfico de Red</span>
+                <button class="refresh-btn" onclick="updateNetworkTraffic()">🔄 Actualizar</button>
+            </div>
+            <div class="metric-details">
+                <div class="detail-item">
+                    <span class="detail-label">Entrada:</span>
+                    <span class="detail-value" id="inTraffic">0 MB/s</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Salida:</span>
+                    <span class="detail-value" id="outTraffic">0 MB/s</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Hoy:</span>
+                    <span class="detail-value" id="totalToday">0 GB</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Pico:</span>
+                    <span class="detail-value" id="peakTraffic">0 Mbps</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eventos de Seguridad -->
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">🔐 Eventos de Seguridad</span>
+                <button class="refresh-btn" onclick="updateSecurityEvents()">🔄 Actualizar</button>
+            </div>
+            <div class="metric-details">
+                <div class="detail-item">
+                    <span class="detail-label">Críticos:</span>
+                    <span class="detail-value" id="criticalEvents" style="color: var(--error-red);">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Advertencias:</span>
+                    <span class="detail-value" id="warningEvents" style="color: var(--warning-yellow);">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Info:</span>
+                    <span class="detail-value" id="infoEvents">0</span>
+                </div>
+            </div>
+            <div class="level-indicator" id="riskLevel">
+                NIVEL DE RIESGO: BAJO
+            </div>
+        </div>
+
+        <!-- Rendimiento del Sistema -->
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">⚡ Rendimiento del Sistema</span>
+                <button class="refresh-btn" onclick="updateSystemPerformance()">🔄 Actualizar</button>
+            </div>
+            <div>
+                <div class="detail-item">
+                    <span class="detail-label">CPU:</span>
+                    <span class="detail-value" id="cpuUsage">20.9%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill low" id="cpuProgress" style="width: 20.9%"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">RAM:</span>
+                    <span class="detail-value" id="ramUsage">47.2%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill medium" id="ramProgress" style="width: 47.2%"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Disco:</span>
+                    <span class="detail-value" id="diskUsage">73.5%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill high" id="diskProgress" style="width: 73.5%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detección de Amenazas -->
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">🚨 Detección de Amenazas</span>
+                <button class="refresh-btn" onclick="updateThreatDetection()">🔄 Actualizar</button>
+            </div>
+            <div class="level-indicator" id="threatLevel">
+                BAJO
+            </div>
+            <div class="metric-details">
+                <div class="detail-item">
+                    <span class="detail-label">Bloqueadas:</span>
+                    <span class="detail-value" id="blockedThreats">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Detectadas:</span>
+                    <span class="detail-value" id="detectedThreats">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Resueltas:</span>
+                    <span class="detail-value" id="resolvedThreats">0</span>
+                </div>
+            </div>
+            <div class="threat-grid" id="threatTypes">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Uso de Ancho de Banda -->
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">📊 Uso de Ancho de Banda</span>
+                <button class="refresh-btn" onclick="updateBandwidth()">🔄 Actualizar</button>
+            </div>
+            <div class="large-display" id="currentBandwidth">0 Mbps</div>
+            <div class="metric-details">
+                <div class="detail-item">
+                    <span class="detail-label">Pico:</span>
+                    <span class="detail-value" id="peakBandwidth">0 Mbps</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Promedio:</span>
+                    <span class="detail-value" id="avgBandwidth">0 Mbps</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Disponible:</span>
+                    <span class="detail-value">100 Mbps</span>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill low" id="bandwidthProgress" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Actividad Geográfica -->
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">🌍 Actividad Geográfica</span>
+                <button class="refresh-btn" onclick="updateGeographic()">🔄 Actualizar</button>
+            </div>
+            <div class="metric-details">
+                <div class="detail-item">
+                    <span class="detail-label">Países:</span>
+                    <span class="detail-value" id="uniqueCountries">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">IPs Únicas:</span>
+                    <span class="detail-value" id="uniqueIPs">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Sospechosas:</span>
+                    <span class="detail-value" id="suspiciousIPs" style="color: var(--error-red);">0</span>
+                </div>
+            </div>
+            <div class="country-list" id="countryList">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let autoRefreshInterval;
+        let refreshCounter = 0;
+
+        // Configuración de la API
+        const API_BASE = 'http://localhost:8000/api/sentinel';
+
+        // Inicializar el sistema
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🛡️ Orbix Sentinel iniciado');
+            startAutoRefresh();
+            loadAllData();
+        });
+
+        // Función para iniciar actualización automática
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(() => {
+                refreshCounter++;
+                loadAllData();
+                updateLastUpdateTime();
+            }, 3000); // Cada 3 segundos
+        }
+
+        // Actualizar tiempo de última actualización
+        function updateLastUpdateTime() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
+        }
+
+        // Cargar todos los datos
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    updateNetworkTraffic(),
+                    updateSecurityEvents(),
+                    updateSystemPerformance(),
+                    updateThreatDetection(),
+                    updateBandwidth(),
+                    updateGeographic()
+                ]);
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+            }
+        }
+
+        // Actualizar tráfico de red
+        async function updateNetworkTraffic() {
+            try {
+                const response = await fetch(`${API_BASE}/network-traffic`);
+                const data = await response.json();
+                
+                document.getElementById('inTraffic').textContent = `${data.entrada_mbps} MB/s`;
+                document.getElementById('outTraffic').textContent = `${data.salida_mbps} MB/s`;
+                document.getElementById('totalToday').textContent = `${data.total_gb_hoy} GB`;
+                document.getElementById('peakTraffic').textContent = `${data.pico_mbps} Mbps`;
+                
+                console.log('📊 Tráfico de red actualizado');
+            } catch (error) {
+                console.error('Error actualizando tráfico de red:', error);
+            }
+        }
+
+        // Actualizar eventos de seguridad
+        async function updateSecurityEvents() {
+            try {
+                const response = await fetch(`${API_BASE}/security-events`);
+                const data = await response.json();
+                
+                document.getElementById('criticalEvents').textContent = data.criticos;
+                document.getElementById('warningEvents').textContent = data.advertencias;
+                document.getElementById('infoEvents').textContent = data.info;
+                
+                // Actualizar nivel de riesgo
+                const riskLevel = document.getElementById('riskLevel');
+                riskLevel.textContent = `NIVEL DE RIESGO: ${data.nivel_riesgo}`;
+                riskLevel.className = `level-indicator level-${data.nivel_riesgo.toLowerCase()}`;
+                
+                console.log('🔐 Eventos de seguridad actualizados');
+            } catch (error) {
+                console.error('Error actualizando eventos de seguridad:', error);
+            }
+        }
+
+        // Actualizar rendimiento del sistema
+        async function updateSystemPerformance() {
+            try {
+                const response = await fetch(`${API_BASE}/system-performance`);
+                const data = await response.json();
+                
+                // Actualizar valores
+                document.getElementById('cpuUsage').textContent = `${data.cpu_porcentaje}%`;
+                document.getElementById('ramUsage').textContent = `${data.ram_porcentaje}%`;
+                document.getElementById('diskUsage').textContent = `${data.disco_porcentaje}%`;
+                
+                // Actualizar barras de progreso
+                updateProgressBar('cpuProgress', data.cpu_porcentaje);
+                updateProgressBar('ramProgress', data.ram_porcentaje);
+                updateProgressBar('diskProgress', data.disco_porcentaje);
+                
+                console.log('⚡ Rendimiento del sistema actualizado');
+            } catch (error) {
+                console.error('Error actualizando rendimiento del sistema:', error);
+            }
+        }
+
+        // Actualizar detección de amenazas
+        async function updateThreatDetection() {
+            try {
+                const response = await fetch(`${API_BASE}/threat-detection`);
+                const data = await response.json();
+                
+                document.getElementById('blockedThreats').textContent = data.bloqueadas;
+                document.getElementById('detectedThreats').textContent = data.detectadas;
+                document.getElementById('resolvedThreats').textContent = data.resueltas;
+                
+                // Actualizar nivel de amenaza
+                const threatLevel = document.getElementById('threatLevel');
+                threatLevel.textContent = data.nivel_amenaza;
+                threatLevel.className = `level-indicator level-${data.nivel_amenaza.toLowerCase()}`;
+                
+                // Actualizar tipos de amenaza
+                const threatTypes = document.getElementById('threatTypes');
+                threatTypes.innerHTML = '';
+                
+                if (data.tipos_amenaza) {
+                    Object.entries(data.tipos_amenaza).forEach(([tipo, count]) => {
+                        const threatItem = document.createElement('div');
+                        threatItem.className = 'threat-item';
+                        threatItem.innerHTML = `
+                            <div class="threat-count">${count}</div>
+                            <div class="threat-type">${tipo}</div>
+                        `;
+                        threatTypes.appendChild(threatItem);
+                    });
+                }
+                
+                console.log('🚨 Detección de amenazas actualizada');
+            } catch (error) {
+                console.error('Error actualizando detección de amenazas:', error);
+            }
+        }
+
+        // Actualizar ancho de banda
+        async function updateBandwidth() {
+            try {
+                const response = await fetch(`${API_BASE}/bandwidth`);
+                const data = await response.json();
+                
+                document.getElementById('currentBandwidth').textContent = `${data.uso_actual_mbps} Mbps`;
+                document.getElementById('peakBandwidth').textContent = `${data.pico_mbps} Mbps`;
+                document.getElementById('avgBandwidth').textContent = `${data.promedio_mbps} Mbps`;
+                
+                // Actualizar barra de progreso
+                updateProgressBar('bandwidthProgress', data.porcentaje_uso);
+                
+                console.log('📊 Ancho de banda actualizado');
+            } catch (error) {
+                console.error('Error actualizando ancho de banda:', error);
+            }
+        }
+
+        // Actualizar actividad geográfica
+        async function updateGeographic() {
+            try {
+                const response = await fetch(`${API_BASE}/geographic`);
+                const data = await response.json();
+                
+                document.getElementById('uniqueCountries').textContent = data.paises_unicos;
+                document.getElementById('uniqueIPs').textContent = data.ips_unicas;
+                document.getElementById('suspiciousIPs').textContent = data.ips_sospechosas;
+                
+                // Actualizar lista de países
+                const countryList = document.getElementById('countryList');
+                countryList.innerHTML = '';
+                
+                if (data.paises) {
+                    Object.entries(data.paises).forEach(([country, count]) => {
+                        const countryItem = document.createElement('div');
+                        countryItem.className = 'country-item';
+                        countryItem.innerHTML = `
+                            <span>${country}</span>
+                            <span class="detail-value">${count}</span>
+                        `;
+                        countryList.appendChild(countryItem);
+                    });
+                }
+                
+                console.log('🌍 Actividad geográfica actualizada');
+            } catch (error) {
+                console.error('Error actualizando actividad geográfica:', error);
+            }
+        }
+
+        // Función auxiliar para actualizar barras de progreso
+        function updateProgressBar(elementId, percentage) {
+            const progressBar = document.getElementById(elementId);
+            progressBar.style.width = `${percentage}%`;
+            
+            // Cambiar color según el porcentaje
+            progressBar.className = 'progress-fill';
+            if (percentage < 50) {
+                progressBar.classList.add('low');
+            } else if (percentage < 80) {
+                progressBar.classList.add('medium');
+            } else {
+                progressBar.classList.add('high');
+            }
+        }
+
+        // Función para detener/iniciar auto-actualización
+        function toggleAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                console.log('🔄 Auto-actualización detenida');
+            } else {
+                startAutoRefresh();
+                console.log('🔄 Auto-actualización reiniciada');
+            }
+        }
+
+        // Manejar errores de red
+        window.addEventListener('error', function(event) {
+            console.error('Error en Sentinel:', event.error);
+        });
+
+        // Actualizar estado del sistema cada 30 segundos
+        setInterval(() => {
+            const statusLight = document.getElementById('systemStatus');
+            statusLight.className = 'status-light online';
+        }, 30000);
+
+        // Logs para debugging
+        console.log('🛡️ Orbix Sentinel - Sistema de Monitoreo Iniciado');
+        console.log('📊 Dashboard con actualizaciones cada 3 segundos');
+        console.log('🔄 Botones de actualización manual disponibles');
+    </script>
+</body>
+</html>
