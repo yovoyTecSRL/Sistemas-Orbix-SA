@@ -23,13 +23,8 @@ from datetime import datetime, timedelta
 import asyncio
 import random
 from typing import List, Dict, Any
-
-try:
-    import requests
-except ImportError:
-    # Si requests no está disponible, lo instalamos o usamos una alternativa
-    subprocess.run(["pip3", "install", "requests"], capture_output=True)
-    import requests
+import urllib.request
+import urllib.error
 
 app = FastAPI(
     title="🧠 Orbix Systems", 
@@ -95,6 +90,8 @@ async def lanzar_validaciones():
         print(f"🔍 Verificando contenedor {contenedor}...")
         
         # Verificar si Docker está disponible
+        docker_disponible = False
+        result = None
         try:
             result = subprocess.run(["docker", "ps"], capture_output=True, text=True, timeout=10)
             docker_disponible = True
@@ -102,7 +99,7 @@ async def lanzar_validaciones():
             docker_disponible = False
             print("⚠️ Docker no disponible, intentando método alternativo...")
 
-        if docker_disponible and contenedor in result.stdout:
+        if docker_disponible and result and contenedor in result.stdout:
             print(f"✅ Contenedor {contenedor} ya está corriendo")
             return RedirectResponse(url=f"http://localhost:{puerto}")
 
@@ -206,9 +203,10 @@ async def health_check():
 async def check_service_status(port: int) -> str:
     """Verificar estado de un servicio por puerto"""
     try:
-        response = requests.get(f"http://localhost:{port}/health", timeout=2)
-        return "active" if response.status_code == 200 else "inactive"
-    except:
+        url = f"http://localhost:{port}/health"
+        with urllib.request.urlopen(url, timeout=2) as response:
+            return "active" if response.status == 200 else "inactive"
+    except (urllib.error.URLError, Exception):
         return "inactive"
 
 @app.get("/api/status")

@@ -943,10 +943,11 @@
         
         if (data.events && data.events.length > 0) {
           // Mostrar solo los últimos 5 eventos para no saturar
-          const recentEvents = data.events.slice(0, 5);
-          
-          recentEvents.forEach(event => {        addEventToFeed(event);
-      }
+      const recentEvents = data.events.slice(0, 5);
+      
+      recentEvents.forEach(event => {
+        addEventToFeed(event);
+      });
     }
       } catch (error) {
         console.error('Error cargando eventos de Sentinel:', error);
@@ -1024,7 +1025,7 @@
             feedContainer.removeChild(feedContainer.lastChild);
           }
         }
-      });
+      }
     }
 
     function updateQuickStats() {
