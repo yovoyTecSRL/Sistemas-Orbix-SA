@@ -5,26 +5,29 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000';
+const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000';
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Proxy para FastAPI de validaciones
-app.use('/api/orbix', createProxyMiddleware({
+// Proxy para FastAPI - API completa
+app.use('/api', createProxyMiddleware({
   target: FASTAPI_URL,
   changeOrigin: true,
-  pathRewrite: {
-    '^/api/orbix': ''
-  },
+  logLevel: 'info',
   onError: (err, req, res) => {
-    console.log('Error conectando con FastAPI:', err.message);
+    console.log('❌ Error conectando con FastAPI:', err.message);
     res.status(503).json({
-      error: 'Servicio de validaciones no disponible',
-      message: 'Por favor, inicie el servidor FastAPI en puerto 8000'
+      error: 'FastAPI no disponible',
+      message: 'Verifique que FastAPI esté corriendo en puerto 8000',
+      endpoint: req.originalUrl,
+      timestamp: new Date().toISOString()
     });
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`🔄 Proxy: ${req.method} ${req.originalUrl} -> ${FASTAPI_URL}${proxyReq.path}`);
   }
 }));
 

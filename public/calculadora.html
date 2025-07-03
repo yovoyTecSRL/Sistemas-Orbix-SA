@@ -125,20 +125,78 @@
   </footer>
 
   <script>
-    function calculateLoan() {
+    const API_BASE = '/api';
+
+    async function calculateLoan() {
       const amount = parseFloat(document.getElementById('loan-amount').value);
-      const rate = parseFloat(document.getElementById('interest-rate').value) / 100 / 12;
+      const rate = parseFloat(document.getElementById('interest-rate').value);
       const term = parseInt(document.getElementById('loan-term').value);
       
       if (amount && rate && term) {
-        const monthlyPayment = (amount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
-        const totalPayment = monthlyPayment * term;
-        const totalInterest = totalPayment - amount;
-        
-        document.getElementById('monthly-payment').textContent = `Cuota mensual: ₡${monthlyPayment.toLocaleString('es-CR')}`;
-        document.getElementById('total-interest').textContent = `Intereses totales: ₡${totalInterest.toLocaleString('es-CR')}`;
-        document.getElementById('total-payment').textContent = `Total a pagar: ₡${totalPayment.toLocaleString('es-CR')}`;
+        try {
+          const response = await fetch(`${API_BASE}/calculadora/calculate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              monto_prestamo: amount,
+              tasa_interes: rate,
+              plazo_meses: term,
+              tipo_calculo: 'frances'
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            
+            document.getElementById('monthly-payment').textContent = 
+              `Cuota mensual: ₡${data.cuota_mensual.toLocaleString('es-CR')}`;
+            document.getElementById('total-interest').textContent = 
+              `Intereses totales: ₡${data.total_intereses.toLocaleString('es-CR')}`;
+            document.getElementById('total-payment').textContent = 
+              `Total a pagar: ₡${data.total_pagar.toLocaleString('es-CR')}`;
+              
+            // Mostrar recomendación si existe
+            if (data.recomendacion) {
+              const resultBox = document.getElementById('loan-result');
+              const recomendacionEl = document.getElementById('recommendation') || document.createElement('p');
+              recomendacionEl.id = 'recommendation';
+              recomendacionEl.innerHTML = `<strong>💡 Recomendación:</strong> ${data.recomendacion}`;
+              recomendacionEl.style.marginTop = '10px';
+              recomendacionEl.style.padding = '10px';
+              recomendacionEl.style.backgroundColor = '#e8f4fd';
+              recomendacionEl.style.borderLeft = '4px solid #3498db';
+              if (!document.getElementById('recommendation')) {
+                resultBox.appendChild(recomendacionEl);
+              }
+            }
+          } else {
+            console.error('Error en la API:', response.statusText);
+            // Fallback al cálculo local
+            calculateLoanLocal(amount, rate, term);
+          }
+        } catch (error) {
+          console.error('Error conectando con la API:', error);
+          // Fallback al cálculo local
+          calculateLoanLocal(amount, rate, term);
+        }
       }
+    }
+
+    function calculateLoanLocal(amount, rate, term) {
+      // Cálculo local como fallback
+      const monthlyRate = rate / 100 / 12;
+      const monthlyPayment = (amount * monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
+      const totalPayment = monthlyPayment * term;
+      const totalInterest = totalPayment - amount;
+      
+      document.getElementById('monthly-payment').textContent = 
+        `Cuota mensual: ₡${monthlyPayment.toLocaleString('es-CR')}`;
+      document.getElementById('total-interest').textContent = 
+        `Intereses totales: ₡${totalInterest.toLocaleString('es-CR')}`;
+      document.getElementById('total-payment').textContent = 
+        `Total a pagar: ₡${totalPayment.toLocaleString('es-CR')}`;
     }
 
     function analyzeCapacity() {
@@ -175,6 +233,22 @@
         document.getElementById('earnings').textContent = `Ganancias: ₡${earnings.toLocaleString('es-CR')}`;
       }
     }
+
+    // Cargar tipos de cálculo disponibles al iniciar
+    async function loadCalculationTypes() {
+      try {
+        const response = await fetch(`${API_BASE}/calculadora/tipos`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Tipos de cálculo disponibles:', data.tipos_calculo);
+        }
+      } catch (error) {
+        console.log('⚠️ API no disponible, usando cálculos locales');
+      }
+    }
+
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', loadCalculationTypes);
   </script>
 </body>
 </html>

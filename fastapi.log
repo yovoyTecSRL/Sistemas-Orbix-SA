@@ -1,0 +1,47 @@
+nohup: ignoring input
+INFO:     Will watch for changes in these directories: ['/workspaces/Sistemas-Orbix-SA']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [64002] using WatchFiles
+INFO:     Started server process [64004]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     186.32.220.184:0 - "GET / HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43106 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39238 - "GET /health HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/calculadora/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49800 - "GET /api/orbix/health HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47898 - "GET /api/orbix/health HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41680 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39510 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38670 - "GET /api/calculadora/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/calculadora/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/calculadora/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found

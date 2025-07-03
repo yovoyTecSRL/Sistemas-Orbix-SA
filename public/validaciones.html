@@ -167,7 +167,7 @@
 
   <script>
     // Variables globales
-    const API_BASE = '/api/orbix';
+    const API_BASE = '/api';
     
     // Verificar conexión con FastAPI al cargar la página
     window.addEventListener('DOMContentLoaded', function() {
@@ -204,7 +204,7 @@
 
     async function loadPaymentStats() {
       try {
-        const response = await fetch(`${API_BASE}/api/payment-stats`);
+        const response = await fetch(`${API_BASE}/validaciones/tipos`);
         if (response.ok) {
           const data = await response.json();
           document.getElementById('approved-count').textContent = data.approved;
@@ -219,7 +219,7 @@
 
     async function loadSystemMetrics() {
       try {
-        const response = await fetch(`${API_BASE}/api/metrics`);
+        const response = await fetch(`${API_BASE}/sentinel/metrics`);
         if (response.ok) {
           const data = await response.json();
           document.getElementById('cpu-usage').textContent = `${data.cpu_usage}%`;
@@ -234,7 +234,7 @@
 
     async function loadRecentActivities() {
       try {
-        const response = await fetch(`${API_BASE}/api/recent-activities`);
+        const response = await fetch(`${API_BASE}/sentinel/events`);
         if (response.ok) {
           const data = await response.json();
           const container = document.getElementById('activities-list');
@@ -274,7 +274,7 @@
       }
       
       try {
-        const response = await fetch(`${API_BASE}/cotizar`, {
+        const response = await fetch(`${API_BASE}/validaciones/validate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
