@@ -45,3 +45,51 @@ INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
 INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
 INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
 INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET / HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/calculadora/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/calculadora/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     186.32.220.184:0 - "GET /api/sentinel/metrics HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/validaciones/tipos HTTP/1.1" 200 OK
+INFO:     186.32.220.184:0 - "GET /api/sentinel/events HTTP/1.1" 200 OK
